@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
 import { useInView } from 'react-intersection-observer';
+import useDocumentTitle from '../components/useDocumentTitle'; // Import the hook
 import lifewoodLogo from '../assets/lifewood Logo.png';
 import '../styles/pages/About.css';
 
 const About = () => {
-    const [activeBackground, setActiveBackground] = useState('default');
+    useDocumentTitle('About Us | Lifewood Data Technology'); // Use the hook
 
+    const [activeBackground, setActiveBackground] = useState('default');
     const { ref: visionRef, inView: visionInView } = useInView({ threshold: 0.4 });
     const { ref: missionRef, inView: missionInView } = useInView({ threshold: 0.4 });
 
@@ -28,23 +29,15 @@ const About = () => {
             </div>
 
             <div className="page-container about-page">
-                <Helmet>
-                    <title>About Us | Lifewood Data Technology</title>
-                </Helmet>
-
                 <section className="brand-showcase fade-in-up">
                     <img src={lifewoodLogo} alt="Lifewood company logo" className="logo" />
                     <h1 className="company-name">Lifewood Data Technology</h1>
-
-                    {/* --- SIMPLIFIED TOGGLE STRUCTURE --- */}
                     <div className="motto-toggle-wrapper">
                         <div className="text-fader always-never">
                             <span>Always</span>
                             <span>Never</span>
                         </div>
-
                         <div className="toggle-switch">
-                            {/* Text has been removed from inside the switch */}
                             <div className="toggle-thumb"></div>
                         </div>
                     </div>

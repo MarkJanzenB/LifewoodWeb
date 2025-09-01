@@ -1,9 +1,11 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import useDocumentTitle from '../components/useDocumentTitle'; // Import the hook
 import ProjectCard from '../components/ProjectCard';
 import '../styles/pages/Projects.css';
 
 const Projects = () => {
+    useDocumentTitle('Our Projects | Lifewood Data Technology'); // Use the hook
+
     const projectList = [
         {
             title: 'AI Data Extraction',
@@ -18,7 +20,6 @@ const Projects = () => {
         {
             title: 'Genealogy',
             description: 'Using AI to analyze historical records and help people uncover their family histories with unprecedented accuracy.',
-            // --- THIS URL HAS BEEN UPDATED WITH A THEMATIC IMAGE OF OLD PHOTOS ---
             imageUrl: 'https://images.pexels.com/photos/8086333/pexels-photo-8086333.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
         },
         {
@@ -40,10 +41,6 @@ const Projects = () => {
 
     return (
         <div className="page-container">
-            <Helmet>
-                <title>Our Projects | Lifewood Data Technology</title>
-            </Helmet>
-
             <div className="page-header">
                 <h1>Our Projects</h1>
                 <p>Driving Innovation Across Industries</p>

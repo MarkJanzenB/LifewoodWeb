@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import API_BASE_URL from '../../apiConfig'; // <-- IMPORT THE CONFIG
+import useDocumentTitle from '../../components/useDocumentTitle'; // Import the hook
+import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const AdminDashboard = () => {
+    useDocumentTitle('Admin Dashboard | Lifewood Data Technology'); // Use the hook
+
     const navigate = useNavigate();
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +22,6 @@ const AdminDashboard = () => {
             return;
         }
         try {
-            // --- USE THE LIVE URL FROM THE CONFIG FILE ---
             const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -52,7 +53,6 @@ const AdminDashboard = () => {
         if (window.confirm('Are you sure you want to delete this application?')) {
             const token = getToken();
             try {
-                // --- USE THE LIVE URL FROM THE CONFIG FILE ---
                 const response = await fetch(`${API_BASE_URL}/api/admin/applications/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` },
@@ -67,14 +67,12 @@ const AdminDashboard = () => {
         }
     };
 
-    // ... (rest of the component is unchanged) ...
     const handleCreate = () => alert("This would open a 'Create New Application' form/modal.");
     const handleEdit = (app) => alert(`This would open an 'Edit' form/modal for ${app.firstName} ${app.lastName}.`);
     const handleLogout = () => { localStorage.removeItem('authToken'); navigate('/admin/login'); };
 
     return (
         <div className="admin-container dashboard">
-            <Helmet><title>Admin Dashboard | Lifewood Data Technology</title></Helmet>
             <div className="dashboard-header">
                 <h1>Application Dashboard</h1>
                 <div>
