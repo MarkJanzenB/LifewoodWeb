@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import useDocumentTitle from '../../components/useDocumentTitle'; // Import the hook
 import Button from '../../components/Button';
-import API_BASE_URL from '../../apiConfig'; // <-- IMPORT THE CONFIG
+import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const AdminLogin = () => {
+    useDocumentTitle('Admin Portal | Lifewood Data Technology'); // Use the hook
+
     const [isLoginView, setIsLoginView] = useState(true);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -17,23 +19,18 @@ const AdminLogin = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
-
         const endpoint = isLoginView ? '/api/auth/login' : '/api/auth/register';
         const payload = { username, password };
-
         try {
-            // --- USE THE LIVE URL FROM THE CONFIG FILE ---
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText || 'An error occurred.');
             }
-
             if (isLoginView) {
                 const data = await response.json();
                 if (data.jwt) {
@@ -48,20 +45,16 @@ const AdminLogin = () => {
                 setUsername('');
                 setPassword('');
             }
-
         } catch (err) {
             setError(err.message);
         }
     };
 
-    // ... (rest of the component is unchanged) ...
     return (
         <div className="admin-container">
-            <Helmet><title>Admin Portal | Lifewood Data Technology</title></Helmet>
             <div className="admin-box">
                 <h2>{isLoginView ? 'Admin Login' : 'Admin Registration'}</h2>
                 <form onSubmit={handleSubmit}>
-                    {/* ... form inputs ... */}
                     <div className="input-group">
                         <label htmlFor="username">Username</label>
                         <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required />

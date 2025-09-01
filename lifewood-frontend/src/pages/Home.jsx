@@ -1,17 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import useDocumentTitle from '../components/useDocumentTitle'; // Import the hook
 import Button from '../components/Button';
 import '../styles/pages/Home.css';
 
 const Home = () => {
+    useDocumentTitle('Lifewood Data Technology | Home'); // Use the hook
+
     return (
         <>
-            <Helmet>
-                <title>Lifewood Data Technology | Home</title>
-            </Helmet>
-
-            {/* Section 1: Hero Welcome */}
+            {/* The <Helmet> component is removed */}
             <div className="home-container">
                 <h1 className="fade-in-up">Welcome to Lifewood</h1>
                 <p className="sub-headline fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -27,7 +25,6 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* Section 2: "What Makes Lifewood Unique?" Text Section */}
             <section className="info-section fade-in-up">
                 <div className="info-container">
                     <h2>What makes Lifewood unique?</h2>
@@ -52,7 +49,6 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Section 3: Core Pillars with Stock Images */}
             <section className="pillars-section fade-in-up">
                 <div className="pillars-container">
                     <h2>Our Core Pillars</h2>

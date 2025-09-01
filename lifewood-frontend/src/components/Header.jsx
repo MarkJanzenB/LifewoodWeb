@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import lifewoodLogo from '../assets/lifewood Logo.png';
+import lifewoodLogo from '../assets/Lifewood Logo.png';
 import Button from './Button';
 import '../styles/components/Header.css';
 
