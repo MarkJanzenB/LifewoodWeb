@@ -4,7 +4,6 @@ import com.lifewood.lifewood_backend.service.AdminUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,9 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -43,21 +40,15 @@ public class SecurityConfig {
                 .and().build();
     }
 
-    // --- NEW BEAN: The Definitive CORS Configuration ---
+    // This bean defines our CORS rules and is still correct.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Define the allowed origins (your frontend URLs)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "https://lifewoodweb.vercel.app", "https://lifewoodweb-git-production-markjanzenbs-projects.vercel.app"));
-        // Define the allowed HTTP methods
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Define the allowed headers
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-        // Allow credentials (important for some auth flows)
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://lifewoodweb.vercel.app", "https://lifewoodweb-git-production-markjanzenbs-projects.vercel.app"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply this configuration to all paths under /api/
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
@@ -65,15 +56,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // This line tells Spring Security to use the bean we defined above
-                .cors(withDefaults())
+                // --- THIS IS THE CRITICAL CHANGE ---
+                // Be more explicit about applying our CORS configuration bean.
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
+
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/message").permitAll()
-                        .requestMatchers("/api/health").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/applications/**").permitAll()
+                        // The OPTIONS rule is now handled by the CORS config, so we can remove it
+                        .requestMatchers("/api/message", "/api/health", "/api/auth/**", "/api/applications/**").permitAll()
                         .requestMatchers("/api/admin/**").authenticated()
                         .anyRequest().authenticated()
                 )
