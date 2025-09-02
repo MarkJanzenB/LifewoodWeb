@@ -2,27 +2,22 @@ package com.lifewood.lifewood_backend.controller;
 
 import com.lifewood.lifewood_backend.model.AdminUser;
 import com.lifewood.lifewood_backend.repository.AdminUserRepository;
-import com.lifewood.lifewood_backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.security.Principal;
 
+// DTO for registration
 record AuthRequest(String username, String password) {}
-record AuthResponse(String jwt) {}
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired private AuthenticationManager authenticationManager;
-    @Autowired private UserDetailsService userDetailsService;
     @Autowired private AdminUserRepository adminUserRepository;
     @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody AuthRequest authRequest) {
@@ -35,17 +30,13 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully!");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
-            );
-        } catch (Exception e) {
-            throw new Exception("Incorrect username or password", e);
+    // New endpoint for the frontend to check if a user is logged in
+    @GetMapping("/profile")
+    public ResponseEntity<UserDetails> getUserProfile(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build(); // Unauthorized
         }
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
-        final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthResponse(jwt));
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return ResponseEntity.ok(userDetails);
     }
 }

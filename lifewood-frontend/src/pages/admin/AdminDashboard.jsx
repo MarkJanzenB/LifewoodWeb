@@ -1,65 +1,55 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import useDocumentTitle from '../../components/useDocumentTitle'; // Import the hook
 import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const AdminDashboard = () => {
-    useDocumentTitle('Admin Dashboard | Lifewood Data Technology'); // Use the hook
-
     const navigate = useNavigate();
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const getToken = () => localStorage.getItem('authToken');
+    // This is the new "protected route" check
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/profile`);
+                if (!response.ok) {
+                    // If we get a 401 or any other error, the user is not logged in.
+                    navigate('/admin/login');
+                } else {
+                    // If the profile fetch is successful, fetch the application data.
+                    fetchApplications();
+                }
+            } catch (err) {
+                navigate('/admin/login');
+            }
+        };
+        checkAuthStatus();
+    }, [navigate]);
 
-    const fetchApplications = useCallback(async () => {
+    // Fetch applications (now without any auth headers)
+    const fetchApplications = async () => {
         setIsLoading(true);
-        const token = getToken();
-        if (!token) {
-            navigate('/admin/login');
-            return;
-        }
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-            if (response.status === 401 || response.status === 403) {
-                throw new Error('Unauthorized or session expired. Please log in again.');
-            }
-            if (!response.ok) {
-                throw new Error('Failed to fetch application data.');
-            }
+            const response = await fetch(`${API_BASE_URL}/api/admin/applications`);
+            if (!response.ok) throw new Error('Failed to fetch data.');
             const data = await response.json();
             setApplications(data);
             setError(null);
         } catch (err) {
             setError(err.message);
-            if (err.message.includes('Unauthorized')) {
-                localStorage.removeItem('authToken');
-                navigate('/admin/login');
-            }
         } finally {
             setIsLoading(false);
         }
-    }, [navigate]);
-
-    useEffect(() => {
-        fetchApplications();
-    }, [fetchApplications]);
+    };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this application?')) {
-            const token = getToken();
             try {
-                const response = await fetch(`${API_BASE_URL}/api/admin/applications/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to delete application.');
-                }
+                const response = await fetch(`${API_BASE_URL}/api/admin/applications/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to delete.');
                 fetchApplications();
             } catch (err) {
                 alert(err.message);
@@ -67,12 +57,17 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleLogout = async () => {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
+        navigate('/admin/login');
+    };
+
     const handleCreate = () => alert("This would open a 'Create New Application' form/modal.");
     const handleEdit = (app) => alert(`This would open an 'Edit' form/modal for ${app.firstName} ${app.lastName}.`);
-    const handleLogout = () => { localStorage.removeItem('authToken'); navigate('/admin/login'); };
 
     return (
         <div className="admin-container dashboard">
+            {/* ... rest of JSX is unchanged ... */}
             <div className="dashboard-header">
                 <h1>Application Dashboard</h1>
                 <div>

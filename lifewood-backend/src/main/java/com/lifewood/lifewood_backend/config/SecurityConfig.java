@@ -1,6 +1,7 @@
 package com.lifewood.lifewood_backend.config;
 
 import com.lifewood.lifewood_backend.service.AdminUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,24 +9,23 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Autowired
     private AdminUserDetailsService adminUserDetailsService;
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,42 +34,51 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(adminUserDetailsService)
-                .passwordEncoder(passwordEncoder())
-                .and().build();
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(adminUserDetailsService).passwordEncoder(passwordEncoder());
+        return authenticationManagerBuilder.build();
     }
 
-    // This bean defines our CORS rules and is still correct.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://lifewoodweb.vercel.app", "https://lifewoodweb-git-production-markjanzenbs-projects.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // --- THIS IS THE CRITICAL CHANGE ---
-                // Be more explicit about applying our CORS configuration bean.
-                .cors(c -> c.configurationSource(corsConfigurationSource()))
-
-                .csrf(csrf -> csrf.disable())
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable()) // CSRF is less of an issue with this setup but disabled for simplicity
                 .authorizeHttpRequests(auth -> auth
-                        // The OPTIONS rule is now handled by the CORS config, so we can remove it
-                        .requestMatchers("/api/message", "/api/health", "/api/auth/**", "/api/applications/**").permitAll()
-                        .requestMatchers("/api/admin/**").authenticated()
+                        // Public endpoints
+                        .requestMatchers("/api/auth/**", "/api/applications/**", "/api/message", "/api/health").permitAll()
+                        // All other API requests must be authenticated
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                // This is the core of session-based login
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/auth/login") // The URL our frontend POSTs to
+                        .successHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK); // Send 200 OK on success
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Send 401 Unauthorized on failure
+                        })
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout") // The URL our frontend calls to log out
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK); // Send 200 OK on successful logout
+                        })
+                );
 
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

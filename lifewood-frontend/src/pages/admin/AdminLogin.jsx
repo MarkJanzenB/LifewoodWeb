@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDocumentTitle from '../../components/useDocumentTitle'; // Import the hook
+import useDocumentTitle from '../../components/useDocumentTitle';
 import Button from '../../components/Button';
 import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const AdminLogin = () => {
-    useDocumentTitle('Admin Portal | Lifewood Data Technology'); // Use the hook
-
+    useDocumentTitle('Admin Portal | Lifewood Data Technology');
     const [isLoginView, setIsLoginView] = useState(true);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -19,26 +18,26 @@ const AdminLogin = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+
         const endpoint = isLoginView ? '/api/auth/login' : '/api/auth/register';
         const payload = { username, password };
+
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
+
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText || 'An error occurred.');
             }
+
             if (isLoginView) {
-                const data = await response.json();
-                if (data.jwt) {
-                    localStorage.setItem('authToken', data.jwt);
-                    navigate('/admin/dashboard');
-                } else {
-                    throw new Error('Login successful, but no token was received.');
-                }
+                // If login is successful (200 OK), just navigate to the dashboard.
+                // The browser has automatically received and stored the session cookie.
+                navigate('/admin/dashboard');
             } else {
                 setSuccess('Registration successful! Please log in.');
                 setIsLoginView(true);
@@ -46,7 +45,7 @@ const AdminLogin = () => {
                 setPassword('');
             }
         } catch (err) {
-            setError(err.message);
+            setError(err.message || "Incorrect username or password.");
         }
     };
 

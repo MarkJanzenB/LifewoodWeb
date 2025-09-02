@@ -10,9 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling; // <-- IMPORT
 public class LifewoodBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(LifewoodBackendApplication.class, args);
-        System.out.println("Server up, up, up\n" +
-                "It's our moment\n" +
-                "You know together we're glowing\n" +
-                "Gonna be, gonna be goldеn  ");
+        System.out.println("Server up");
     }
 }
