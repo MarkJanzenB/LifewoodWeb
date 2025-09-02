@@ -21,9 +21,6 @@ public class AdminUser {
     @Column(nullable = false)
     private boolean passwordChangeRequired = true;
 
-    @Column(nullable = false)
-    private String role; // Add role field
-
     public AdminUser(String username, String password) {
         this.username = username;
         this.password = password;

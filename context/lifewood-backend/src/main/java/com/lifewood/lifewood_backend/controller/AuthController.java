@@ -41,11 +41,6 @@ public class AuthController {
         }
         AdminUser user = adminUserRepository.findByUsername(authRequest.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication"));
-        // Check if the user is an admin
-        if (!user.getRole().equals("ADMIN")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
-        }
-
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
         final String jwt = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new LoginResponse(jwt, user.isPasswordChangeRequired()));

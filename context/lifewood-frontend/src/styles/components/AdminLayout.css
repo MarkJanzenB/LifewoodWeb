@@ -1,0 +1,13 @@
+/* src/styles/components/AdminLayout.css */
+
+.admin-layout {
+    position: relative;
+    min-height: 100vh;
+}
+
+.status-indicator-container {
+    position: fixed; /* Fixed position relative to the viewport */
+    top: 84px; /* 64px header height + 20px padding */
+    right: 20px;
+    z-index: 1001; /* Ensure it's above other content but below any modals if needed */
+}

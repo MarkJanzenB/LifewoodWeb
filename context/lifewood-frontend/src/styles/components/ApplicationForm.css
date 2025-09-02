@@ -1,0 +1,43 @@
+/* src/styles/components/ApplicationForm.css */
+.application-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 2rem;
+    background-color: var(--castleton-green);
+    border-radius: 10px;
+}
+
+.application-form .form-group {
+    display: flex;
+    flex: 1 1 48%;
+    gap: 20px;
+}
+
+.application-form .form-group.full-width {
+    flex: 1 1 100%;
+}
+
+.application-form input,
+.application-form textarea,
+.application-form select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid var(--paper);
+    background-color: var(--sea-salt);
+    color: #333;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+}
+
+.application-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.application-form button {
+    margin: 10px 0 0 auto;
+}   

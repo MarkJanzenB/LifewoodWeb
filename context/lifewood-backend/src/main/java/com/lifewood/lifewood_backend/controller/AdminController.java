@@ -40,7 +40,6 @@ public class AdminController {
         }
 
         AdminUser newAdmin = new AdminUser(newUsername, passwordEncoder.encode("root"));
-        newAdmin.setRole("ADMIN"); // Set role for new admin
         newAdmin.setPasswordChangeRequired(true);
         adminUserRepository.save(newAdmin);
 
