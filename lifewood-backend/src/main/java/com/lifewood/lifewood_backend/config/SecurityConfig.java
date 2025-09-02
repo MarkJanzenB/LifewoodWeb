@@ -61,7 +61,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/applications/**","api/message").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/applications/**").permitAll()
+                        .requestMatchers("/api/message").permitAll() // Allow access to the message endpoint
                         .anyRequest().authenticated()
                 );
 

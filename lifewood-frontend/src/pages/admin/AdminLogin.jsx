@@ -22,8 +22,12 @@ const AdminLogin = () => {
                 body: JSON.stringify({ username, password }),
             });
 
-            // Read the body of the response once, whether it's an error or success
-            const data = await response.json();
+            let data;
+            try {
+                data = await response.json();
+            } catch (error) {
+                throw new Error('Failed to parse response as JSON');
+            }
 
             if (!response.ok) {
                 // If the response is not OK, the JSON body contains the error message

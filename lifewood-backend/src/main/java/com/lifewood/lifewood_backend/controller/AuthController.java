@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 record AuthRequest(String username, String password) {}
-record LoginResponse(String jwt, boolean passwordChangeRequired) {}
 record PasswordResetRequest(String newPassword) {}
 
 @RestController
@@ -41,14 +40,14 @@ public class AuthController {
         }
         AdminUser user = adminUserRepository.findByUsername(authRequest.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication"));
-        // Check if the user is an admin
-        if (!user.getRole().equals("ADMIN")) {
+        // Check if the user is an admin or is the root user
+        if (!user.getRole().equals("ADMIN") && !user.getUsername().equals("root")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
         final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new LoginResponse(jwt, user.isPasswordChangeRequired()));
+        return ResponseEntity.ok(Map.of("jwt", jwt, "passwordChangeRequired", user.isPasswordChangeRequired()));
     }
 
     @PostMapping("/force-reset-password")
