@@ -19,7 +19,6 @@ public class StartupMessageRunner implements CommandLineRunner {
         System.out.println("  Lifewood Backend Server is UP AND RUNNING!");
         System.out.println("  ");
         System.out.println("  Application is now ready to accept connections.");
-        System.out.println("  API is running on: http://localhost:" + serverPort);
         System.out.println("=".repeat(60) + "\n");
     }
 }
