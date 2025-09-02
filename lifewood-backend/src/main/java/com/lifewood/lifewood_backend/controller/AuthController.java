@@ -2,10 +2,12 @@ package com.lifewood.lifewood_backend.controller;
 
 import com.lifewood.lifewood_backend.model.AdminUser;
 import com.lifewood.lifewood_backend.repository.AdminUserRepository;
-import com.lifewood.lifewood_backend.util.JwtUtil; // <-- THIS IMPORT IS NOW VALID
+import com.lifewood.lifewood_backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 // DTOs for cleaner request/response bodies
 record AuthRequest(String username, String password) {}
@@ -26,22 +30,33 @@ public class AuthController {
     @Autowired private UserDetailsService userDetailsService;
     @Autowired private AdminUserRepository adminUserRepository;
     @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private JwtUtil jwtUtil; // <-- THIS FIELD IS NOW VALID
+    @Autowired private JwtUtil jwtUtil;
 
-    // Public registration is removed.
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody AuthRequest authRequest) {
+        if (adminUserRepository.findByUsername(authRequest.username()).isPresent()) {
+            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+        }
+        String hashedPassword = passwordEncoder.encode(authRequest.password());
+        AdminUser newUser = new AdminUser(authRequest.username(), hashedPassword);
+        adminUserRepository.save(newUser);
+        return ResponseEntity.ok("User registered successfully!");
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
             );
-        } catch (Exception e) {
-            throw new Exception("Incorrect username or password", e);
+        } catch (BadCredentialsException e) {
+            // If authentication fails, return a 401 Unauthorized with a clear JSON message
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
         }
 
+        // If authentication succeeds, proceed to generate the token
         AdminUser user = adminUserRepository.findByUsername(authRequest.username())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication"));
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
         final String jwt = jwtUtil.generateToken(userDetails);

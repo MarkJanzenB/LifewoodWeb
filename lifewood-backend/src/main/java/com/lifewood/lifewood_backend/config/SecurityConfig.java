@@ -24,6 +24,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Autowired
     private AdminUserDetailsService adminUserDetailsService;
     @Autowired
@@ -60,15 +61,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/login", "/api/applications/**", "/api/message", "/api/health").permitAll()
-                        // All other requests must be authenticated
+                        // --- THIS IS THE CRITICAL FIX ---
+                        // The /login path MUST be public. Other /auth/ paths (like reset-password) are secure.
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/applications/**", "/api/message", "/api/health").permitAll()
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 );
 
-        // Add our JWT filter to the chain
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }
