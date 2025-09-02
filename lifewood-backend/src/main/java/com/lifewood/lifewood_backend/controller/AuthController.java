@@ -2,41 +2,63 @@ package com.lifewood.lifewood_backend.controller;
 
 import com.lifewood.lifewood_backend.model.AdminUser;
 import com.lifewood.lifewood_backend.repository.AdminUserRepository;
+import com.lifewood.lifewood_backend.util.JwtUtil; // <-- THIS IMPORT IS NOW VALID
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.security.Principal;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-// DTO for registration
+// DTOs for cleaner request/response bodies
 record AuthRequest(String username, String password) {}
+record LoginResponse(String jwt, boolean passwordChangeRequired) {}
+record PasswordResetRequest(String newPassword) {}
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    @Autowired private AuthenticationManager authenticationManager;
+    @Autowired private UserDetailsService userDetailsService;
     @Autowired private AdminUserRepository adminUserRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private JwtUtil jwtUtil; // <-- THIS FIELD IS NOW VALID
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody AuthRequest authRequest) {
-        if (adminUserRepository.findByUsername(authRequest.username()).isPresent()) {
-            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+    // Public registration is removed.
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> createAuthenticationToken(@RequestBody AuthRequest authRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
+            );
+        } catch (Exception e) {
+            throw new Exception("Incorrect username or password", e);
         }
-        String hashedPassword = passwordEncoder.encode(authRequest.password());
-        AdminUser newUser = new AdminUser(authRequest.username(), hashedPassword);
-        adminUserRepository.save(newUser);
-        return ResponseEntity.ok("User registered successfully!");
+
+        AdminUser user = adminUserRepository.findByUsername(authRequest.username())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new LoginResponse(jwt, user.isPasswordChangeRequired()));
     }
 
-    // New endpoint for the frontend to check if a user is logged in
-    @GetMapping("/profile")
-    public ResponseEntity<UserDetails> getUserProfile(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(userDetails);
+    @PostMapping("/force-reset-password")
+    public ResponseEntity<?> forceResetPassword(Authentication authentication, @RequestBody PasswordResetRequest request) {
+        String username = authentication.getName();
+        AdminUser user = adminUserRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPasswordChangeRequired(false);
+        adminUserRepository.save(user);
+
+        return ResponseEntity.ok("Password has been reset successfully.");
     }
 }

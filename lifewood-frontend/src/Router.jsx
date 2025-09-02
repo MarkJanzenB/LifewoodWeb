@@ -6,7 +6,8 @@ import Projects from './pages/Projects';
 import Apply from './pages/Apply';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminLayout from './components/layouts/AdminLayout'; // <-- IMPORT THE NEW LAYOUT
+import AdminLayout from './components/layouts/AdminLayout';
+import ForceResetPassword from './pages/admin/ForceResetPassword'; // <-- THIS IS THE MISSING LINE
 
 const AppRouter = () => {
     return (
@@ -17,10 +18,11 @@ const AppRouter = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/apply" element={<Apply />} />
 
-            {/* --- WRAP ADMIN ROUTES WITH THE LAYOUT --- */}
+            {/* Admin Routes */}
             <Route element={<AdminLayout />}>
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/force-reset" element={<ForceResetPassword />} />
             </Route>
         </Routes>
     );

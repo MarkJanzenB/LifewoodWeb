@@ -18,6 +18,11 @@ public class AdminUser {
     @Column(nullable = false)
     private String password;
 
+    // --- NEW FIELD ---
+    // This will be true for 'root' and all newly created admins
+    @Column(nullable = false)
+    private boolean passwordChangeRequired = true;
+
     public AdminUser(String username, String password) {
         this.username = username;
         this.password = password;
