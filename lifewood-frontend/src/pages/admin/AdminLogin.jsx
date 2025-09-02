@@ -21,17 +21,25 @@ const AdminLogin = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
+
+            // Read the body of the response once, whether it's an error or success
             const data = await response.json();
+
             if (!response.ok) {
+                // If the response is not OK, the JSON body contains the error message
                 throw new Error(data.error || 'An error occurred.');
             }
+
+            // If the response IS OK, proceed with login
             localStorage.setItem('authToken', data.jwt);
+
             if (data.passwordChangeRequired) {
                 navigate('/admin/force-reset');
             } else {
                 navigate('/admin/dashboard');
             }
         } catch (err) {
+            // This will now correctly display errors like "Incorrect username or password"
             setError(err.message);
         }
     };
@@ -52,6 +60,7 @@ const AdminLogin = () => {
                     {error && <p className="error-message form-error">{error}</p>}
                     <Button type="submit">Login</Button>
                 </form>
+                {/* Registration link is correctly removed */}
             </div>
         </div>
     );
