@@ -6,6 +6,7 @@ import Projects from './pages/Projects';
 import Apply from './pages/Apply';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLayout from './components/layouts/AdminLayout'; // <-- IMPORT THE NEW LAYOUT
 
 const AppRouter = () => {
     return (
@@ -16,9 +17,11 @@ const AppRouter = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/apply" element={<Apply />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* --- WRAP ADMIN ROUTES WITH THE LAYOUT --- */}
+            <Route element={<AdminLayout />}>
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            </Route>
         </Routes>
     );
 };
