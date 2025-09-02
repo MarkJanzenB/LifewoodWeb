@@ -57,23 +57,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults()) // Apply the master CORS configuration
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Ensure no sessions are created
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rule 1: These specific endpoints are COMPLETELY PUBLIC
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/applications/**",
-                                "/api/message",
-                                "/api/health"
-                        ).permitAll()
-
-                        // Rule 2: ALL OTHER requests require a valid authentication
+                        .requestMatchers("/api/auth/login", "/api/applications/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
-        // Rule 3: Add our custom JWT filter to process the token on every authenticated request
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

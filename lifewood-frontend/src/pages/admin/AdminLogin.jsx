@@ -60,7 +60,6 @@ const AdminLogin = () => {
                     {error && <p className="error-message form-error">{error}</p>}
                     <Button type="submit">Login</Button>
                 </form>
-                {/* Registration link is correctly removed */}
             </div>
         </div>
     );

@@ -12,13 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin") // Changed base path for clarity
+@RequestMapping("/api/admin")
 public class AdminController {
     @Autowired private ApplicationService applicationService;
     @Autowired private AdminUserRepository adminUserRepository;
     @Autowired private PasswordEncoder passwordEncoder;
 
-    // --- APPLICATION MANAGEMENT ---
     @GetMapping("/applications")
     public List<Application> getAllApplications() {
         return applicationService.getAllApplications();
@@ -30,9 +29,6 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // ... (other application endpoints like GET by ID, POST, PUT can go here)
-
-    // --- NEW: USER MANAGEMENT ---
     @PostMapping("/users")
     public ResponseEntity<?> createAdminUser(@RequestBody Map<String, String> payload) {
         String newUsername = payload.get("username");
@@ -43,7 +39,6 @@ public class AdminController {
             return ResponseEntity.badRequest().body("Username is already taken.");
         }
 
-        // Create new admin with default password "root" and passwordChangeRequired = true
         AdminUser newAdmin = new AdminUser(newUsername, passwordEncoder.encode("root"));
         newAdmin.setPasswordChangeRequired(true);
         adminUserRepository.save(newAdmin);
