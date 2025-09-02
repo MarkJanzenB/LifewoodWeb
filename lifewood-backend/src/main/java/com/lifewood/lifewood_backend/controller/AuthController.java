@@ -15,10 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
-// DTOs for cleaner request/response bodies
 record AuthRequest(String username, String password) {}
 record LoginResponse(String jwt, boolean passwordChangeRequired) {}
 record PasswordResetRequest(String newPassword) {}
@@ -32,17 +30,6 @@ public class AuthController {
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtUtil jwtUtil;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody AuthRequest authRequest) {
-        if (adminUserRepository.findByUsername(authRequest.username()).isPresent()) {
-            return ResponseEntity.badRequest().body("Error: Username is already taken!");
-        }
-        String hashedPassword = passwordEncoder.encode(authRequest.password());
-        AdminUser newUser = new AdminUser(authRequest.username(), hashedPassword);
-        adminUserRepository.save(newUser);
-        return ResponseEntity.ok("User registered successfully!");
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) {
         try {
@@ -50,17 +37,12 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
             );
         } catch (BadCredentialsException e) {
-            // If authentication fails, return a 401 Unauthorized with a clear JSON message
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
         }
-
-        // If authentication succeeds, proceed to generate the token
         AdminUser user = adminUserRepository.findByUsername(authRequest.username())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication"));
-
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
         final String jwt = jwtUtil.generateToken(userDetails);
-
         return ResponseEntity.ok(new LoginResponse(jwt, user.isPasswordChangeRequired()));
     }
 
@@ -69,11 +51,9 @@ public class AuthController {
         String username = authentication.getName();
         AdminUser user = adminUserRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         user.setPasswordChangeRequired(false);
         adminUserRepository.save(user);
-
         return ResponseEntity.ok("Password has been reset successfully.");
     }
 }

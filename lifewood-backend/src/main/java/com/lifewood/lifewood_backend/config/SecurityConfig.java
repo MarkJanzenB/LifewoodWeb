@@ -57,19 +57,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(withDefaults()) // Apply the master CORS configuration
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Ensure no sessions are created
                 .authorizeHttpRequests(auth -> auth
-                        // --- THIS IS THE CRITICAL FIX ---
-                        // The /login path MUST be public. Other /auth/ paths (like reset-password) are secure.
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/applications/**", "/api/message", "/api/health").permitAll()
-                        // All other requests require authentication
+                        // Rule 1: These specific endpoints are COMPLETELY PUBLIC
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/applications/**",
+                                "/api/message",
+                                "/api/health"
+                        ).permitAll()
+
+                        // Rule 2: ALL OTHER requests require a valid authentication
                         .anyRequest().authenticated()
                 );
 
+        // Rule 3: Add our custom JWT filter to process the token on every authenticated request
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
