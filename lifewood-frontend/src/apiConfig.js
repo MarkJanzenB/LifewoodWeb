@@ -1,6 +1,19 @@
-// src/apiConfig.js
+export default async function handler(request, response) {
+    try {
+        // --- VERIFY THIS LINE CAREFULLY ---
+        const backendUrl = 'https://lifewoodweb.onrender.com/api/health';
 
-// Replace this with the actual URL of your deployed backend on Render
-const API_BASE_URL = 'https://lifewoodweb.onrender.com';
+        const fetchResponse = await fetch(backendUrl);
 
-export default API_BASE_URL;
+        if (!fetchResponse.ok) {
+            throw new Error(`Backend responded with status: ${fetchResponse.status}`);
+        }
+
+        console.log(`Successfully pinged backend at ${backendUrl}`);
+        response.status(200).json({ message: 'Backend pinged successfully.' });
+
+    } catch (error) {
+        console.error('Error pinging backend:', error.message);
+        response.status(500).json({ error: 'Failed to ping backend.' });
+    }
+}
