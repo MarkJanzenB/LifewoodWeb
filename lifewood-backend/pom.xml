@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.5</version> <!-- Using a stable, widely-supported version -->
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>com.lifewood</groupId>
     <artifactId>lifewood-backend</artifactId>
@@ -46,7 +46,7 @@
         </dependency>
 
         <!-- ========================================================= -->
-        <!-- THIS IS THE CORRECTED JWT DEPENDENCY BLOCK                  -->
+        <!-- THE DEFINITIVE JWT DEPENDENCY BLOCK                       -->
         <!-- ========================================================= -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -77,28 +77,11 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- JWT Dependencies -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.11.5</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.11.5</version>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- This is the standard Spring Boot plugin, which is all we need. -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
