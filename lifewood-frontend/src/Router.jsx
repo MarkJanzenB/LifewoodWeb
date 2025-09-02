@@ -21,6 +21,8 @@ const AppRouter = () => {
             <Route element={<AdminLayout />}>
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/force-reset" element={<ForceResetPassword />} /> {/* <-- NEW ROUTE */}
+
             </Route>
         </Routes>
     );
