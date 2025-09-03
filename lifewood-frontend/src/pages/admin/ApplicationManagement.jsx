@@ -9,7 +9,7 @@ const ApplicationManagement = () => {
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedApp, setSelectedApp] = useState(null); // This will hold the app for the modal
+    const [selectedApp, setSelectedApp] = useState(null);
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -42,7 +42,6 @@ const ApplicationManagement = () => {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status: newStatus }),
             });
-            // Refresh list and close modal
             fetchApplications();
             setSelectedApp(null);
         } catch (err) {
@@ -58,7 +57,6 @@ const ApplicationManagement = () => {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
-                // Refresh list and close modal
                 fetchApplications();
                 setSelectedApp(null);
             } catch (err) {
@@ -67,7 +65,6 @@ const ApplicationManagement = () => {
         }
     };
 
-    // Helper to format dates nicely
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleString('en-US', {
@@ -79,7 +76,6 @@ const ApplicationManagement = () => {
         <div className="admin-page-content">
             <div className="page-header">
                 <h1>Application Submissions</h1>
-                {/* We can add the "Add Application" modal later */}
                 <button className="admin-button">+ Add Application</button>
             </div>
 
@@ -136,14 +132,21 @@ const ApplicationManagement = () => {
                             <p><strong>Application Date:</strong> {formatDate(selectedApp.createdAt)}</p>
                             <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
                         </div>
+
+                        {/* --- NEW, DE-CROWDED BUTTON LAYOUT --- */}
                         <div className="modal-actions-footer">
+                            {/* Group 1: Primary Action */}
                             <a href={selectedApp.resumeFilename} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
                                 View Resume
                             </a>
+
+                            {/* Group 2: Status Actions */}
                             <div className="status-actions">
                                 <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
                                 <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
                             </div>
+
+                            {/* Group 3: Destructive Action */}
                             <button className="action-button delete" onClick={() => handleDelete(selectedApp.id)}>Delete Application</button>
                         </div>
                     </div>

@@ -1,11 +1,26 @@
 /* src/styles/pages/ApplicationManagement.css */
 
+/* --- NEW ANIMATION for panel navigation --- */
+@keyframes slideFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .admin-page-content {
     background-color: var(--white);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+    /* Apply the animation */
+    animation: slideFadeIn 0.5s ease-out forwards;
 }
+
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -20,23 +35,15 @@ table { width: 100%; border-collapse: collapse; }
 th, td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #f0f2f5; color: var(--dark-serpent); vertical-align: middle; }
 thead th { background-color: #f8f9fa; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; color: #555; }
 tbody tr:last-child td { border-bottom: none; }
+tbody tr.clickable-row { cursor: pointer; transition: background-color 0.2s ease; }
+tbody tr.clickable-row:hover { background-color: #f8f9fa; }
 
-/* --- NEW: Clickable Row Style --- */
-tbody tr.clickable-row {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-tbody tr.clickable-row:hover {
-    background-color: #f8f9fa;
-}
-
-/* Status Badge Styles */
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; color: white; text-align: center; }
 .status-badge.new { background-color: #1890ff; }
 .status-badge.approved { background-color: #52c41a; }
 .status-badge.rejected { background-color: #f5222d; }
 
-/* --- MODAL STYLES --- */
+/* --- COMPLETELY REDESIGNED MODAL STYLES --- */
 .app-modal-content .modal-header {
     display: flex;
     justify-content: space-between;
@@ -50,12 +57,13 @@ tbody tr.clickable-row:hover {
 .modal-details strong { color: #333; }
 .modal-details hr { border: 0; border-top: 1px solid #eee; margin: 1rem 0; }
 
+/* --- NEW Button Footer Layout --- */
 .modal-actions-footer {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid #eee;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* This creates the spacing */
     align-items: center;
 }
 
@@ -75,12 +83,14 @@ tbody tr.clickable-row:hover {
     opacity: 0.9;
 }
 
+/* Specific button colors for clarity */
 .action-button.view-resume { background-color: var(--castleton-green); }
 .action-button.approve { background-color: #52c41a; }
 .action-button.reject { background-color: #ff9800; }
 .action-button.delete { background-color: #f44336; }
 
+/* Group for status buttons */
 .status-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem; /* Space between approve/reject */
 }
