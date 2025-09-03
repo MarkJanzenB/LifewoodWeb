@@ -19,4 +19,11 @@ public class Application {
     private String experience;
     private String email;
     private String project;
+
+    // Can be "New", "Approved", "Rejected"
+    private String status = "New";
+    // --- NEW FIELDS: Resume File Information ---
+    private String resumeFilename; // e.g., "john_doe_resume.pdf"
+    private String resumeContentType; // e.g., "application/pdf"
+
 }

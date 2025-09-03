@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CodebuddyPersistentProjectState">
-    <option name="additionalOptionsVisible" value="true" />
     <option name="autoFileSelection" value="true" />
     <option name="promptHistory">
       <list>
@@ -18,5 +17,6 @@
       </list>
     </option>
     <option name="selectedModel" value="codebuddy:GPT_4_Omni_Mini_V7" />
+    <option name="ttsEnabled" value="false" />
   </component>
 </project>

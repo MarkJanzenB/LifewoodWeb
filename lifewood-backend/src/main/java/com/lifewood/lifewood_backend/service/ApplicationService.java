@@ -4,7 +4,9 @@ import com.lifewood.lifewood_backend.model.Application;
 import com.lifewood.lifewood_backend.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional; // <-- Make sure this import is present
 
 @Service
 public class ApplicationService {
@@ -17,6 +19,11 @@ public class ApplicationService {
 
     public List<Application> getAllApplications() {
         return repository.findAll();
+    }
+
+    // --- THIS IS THE MISSING METHOD ---
+    public Optional<Application> getApplicationById(Long id) {
+        return repository.findById(id);
     }
 
     public void deleteApplication(Long id) {
@@ -32,6 +39,7 @@ public class ApplicationService {
             app.setExperience(updatedApp.getExperience());
             app.setEmail(updatedApp.getEmail());
             app.setProject(updatedApp.getProject());
+            app.setStatus(updatedApp.getStatus());
             return repository.save(app);
         }).orElseThrow(() -> new RuntimeException("Application not found with id " + id));
     }

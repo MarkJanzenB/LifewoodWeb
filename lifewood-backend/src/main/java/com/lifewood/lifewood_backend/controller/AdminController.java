@@ -11,17 +11,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    @Autowired private ApplicationService applicationService;
-    @Autowired private AdminUserRepository adminUserRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ApplicationService applicationService;
+    @Autowired
+    private AdminUserRepository adminUserRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // --- APPLICATION MANAGEMENT ---
+
     @GetMapping("/applications")
     public List<Application> getAllApplications() {
         return applicationService.getAllApplications();
@@ -33,7 +38,38 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/applications/{id}")
+    public ResponseEntity<Application> updateApplication(@PathVariable Long id, @RequestBody Application appDetails) {
+        Application updatedApp = applicationService.updateApplication(id, appDetails);
+        return ResponseEntity.ok(updatedApp);
+    }
+
+    @PostMapping("/applications/{id}/status")
+    public ResponseEntity<Application> updateApplicationStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String newStatus = payload.get("status");
+        Application application = applicationService.getApplicationById(id)
+                .orElseThrow(() -> new RuntimeException("Application not found with id: " + id));
+
+        application.setStatus(newStatus);
+        Application updatedApplication = applicationService.saveApplication(application);
+        return ResponseEntity.ok(updatedApplication);
+    }
+
+    // Admin creating a new application (file upload not supported here for simplicity)
+    @PostMapping("/applications")
+    public Application createApplicationByAdmin(@RequestBody Application application) {
+        // This simple version doesn't handle resume uploads, but fulfills the 'Create' requirement
+        return applicationService.saveApplication(application);
+    }
+
+
     // --- USER MANAGEMENT ---
+
+    @GetMapping("/users")
+    public List<AdminUser> getAllAdminUsers() {
+        return adminUserRepository.findAll();
+    }
+
     @PostMapping("/users")
     public ResponseEntity<?> createAdminUser(@RequestBody Map<String, String> payload) {
         String newUsername = payload.get("username");
@@ -49,13 +85,6 @@ public class AdminController {
         return ResponseEntity.ok("Admin user created successfully. Default password is 'root'.");
     }
 
-    // --- NEW: GET ALL ADMIN USERS ---
-    @GetMapping("/users")
-    public List<AdminUser> getAllAdminUsers() {
-        return adminUserRepository.findAll();
-    }
-
-    // --- NEW: DELETE A USER (WITH SECURITY CHECKS) ---
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteAdminUser(@PathVariable Long id, Authentication authentication) {
         String currentUsername = authentication.getName();
@@ -73,7 +102,6 @@ public class AdminController {
         return ResponseEntity.ok("User deleted successfully.");
     }
 
-    // --- NEW: RESET A USER'S PASSWORD (WITH SECURITY CHECKS) ---
     @PostMapping("/users/{id}/reset-password")
     public ResponseEntity<?> resetAdminPassword(@PathVariable Long id) {
         AdminUser userToReset = adminUserRepository.findById(id)
