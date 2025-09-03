@@ -42,7 +42,7 @@ const ApplicationForm = () => {
             });
 
             if (response.ok) {
-                showAlert('Your application has been submitted successfully! We will be in touch.', 'Success!');
+                showAlert('Your application has been submitted successfully! We will be in touch. Please Check your SPAM folder for updates', 'Success!');
                 e.target.reset();
                 setFormData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', resumeLink: '' });
             } else {
