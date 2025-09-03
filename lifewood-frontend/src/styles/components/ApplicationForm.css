@@ -1,19 +1,23 @@
 /* src/styles/components/ApplicationForm.css */
+
 .application-form {
+    background-color: var(--white); /* Change background to white */
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 2rem;
-    background-color: var(--castleton-green);
-    border-radius: 10px;
+    gap: 1.5rem;
+    color: var(--dark-serpent);
 }
 
 .application-form .form-group {
     display: flex;
-    flex: 1 1 48%;
-    gap: 20px;
+    flex: 1 1 48%; /* Allows two fields per row */
+    gap: 1.5rem;
+    flex-direction: column;
 }
 
 .application-form .form-group.full-width {
@@ -24,20 +28,71 @@
 .application-form textarea,
 .application-form select {
     width: 100%;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid var(--paper);
-    background-color: var(--sea-salt);
-    color: #333;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    background-color: #f8f9fa;
+    color: var(--dark-serpent);
     font-family: 'Manrope', sans-serif;
-    font-size: 16px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.application-form input:focus,
+.application-form textarea:focus,
+.application-form select:focus {
+    outline: none;
+    border-color: var(--castleton-green);
+    box-shadow: 0 0 0 3px rgba(4, 98, 65, 0.1);
 }
 
 .application-form textarea {
-    min-height: 120px;
     resize: vertical;
 }
 
-.application-form button {
-    margin: 10px 0 0 auto;
-}   
+/* --- MODERN FILE INPUT STYLES --- */
+/* Hide the default browser button */
+.application-form input[type="file"] {
+    display: none;
+}
+
+.application-form .file-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 2px dashed #d9d9d9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.application-form .file-label:hover {
+    border-color: var(--castleton-green);
+    background-color: #f8f9fa;
+}
+
+.application-form .file-label span:first-child {
+    font-weight: 500;
+}
+
+.application-form .file-label .file-name {
+    font-style: italic;
+    color: #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* Adjust as needed */
+}
+
+/* --- MESSAGE & SUBMIT STYLES --- */
+.form-messages {
+    width: 100%;
+}
+.form-submit-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end; /* Aligns button to the right */
+    margin-top: 1rem;
+}

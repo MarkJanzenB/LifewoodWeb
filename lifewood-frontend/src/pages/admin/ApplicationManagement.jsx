@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
-import Modal from '../../components/Modal'; // Assuming Modal component exists
-import '../../styles/pages/ApplicationManagement.css'; // Assuming this CSS exists
+import Modal from '../../components/Modal';
+import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
     useDocumentTitle('Application Management | Lifewood Data Technology');
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedApp, setSelectedApp] = useState(null); // For viewing/editing in a modal
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectedApp, setSelectedApp] = useState(null); // This will hold the app for the modal
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -38,15 +37,16 @@ const ApplicationManagement = () => {
     const handleStatusChange = async (appId, newStatus) => {
         try {
             const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
+            await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status: newStatus }),
             });
-            if (!response.ok) throw new Error("Failed to update status.");
-            fetchApplications(); // Refresh list
+            // Refresh list and close modal
+            fetchApplications();
+            setSelectedApp(null);
         } catch (err) {
-            alert(err.message);
+            alert(`Error updating status: ${err.message}`);
         }
     };
 
@@ -54,37 +54,33 @@ const ApplicationManagement = () => {
         if (window.confirm('Are you sure you want to delete this application?')) {
             try {
                 const token = getToken();
-                const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
+                await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
-                if (!response.ok) throw new Error("Failed to delete application.");
-                fetchApplications(); // Refresh list
+                // Refresh list and close modal
+                fetchApplications();
+                setSelectedApp(null);
             } catch (err) {
-                alert(err.message);
+                alert(`Error deleting application: ${err.message}`);
             }
         }
     };
 
-    // Placeholder for handling creation from a modal
-    const handleCreateApplication = () => {
-        // This would involve a modal with a form similar to ApplicationForm.jsx
-        // The submit handler would POST to /api/admin/applications (without a file)
-        setIsCreateModalOpen(true);
-        alert("This will open a modal to add a new application manually.");
-    };
-
-    // Placeholder for opening an edit modal
-    const handleEditApplication = (app) => {
-        setSelectedApp(app);
-        alert("This will open a modal to edit the selected application.");
+    // Helper to format dates nicely
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
     };
 
     return (
         <div className="admin-page-content">
             <div className="page-header">
                 <h1>Application Submissions</h1>
-                <button className="admin-button" onClick={handleCreateApplication}>+ Add Application</button>
+                {/* We can add the "Add Application" modal later */}
+                <button className="admin-button">+ Add Application</button>
             </div>
 
             {isLoading && <p>Loading applications...</p>}
@@ -97,58 +93,62 @@ const ApplicationManagement = () => {
                         <tr>
                             <th>Applicant Name</th>
                             <th>Project</th>
-                            <th>Email</th>
                             <th>Status</th>
-                            <th>Resume</th>
-                            <th>Actions</th>
+                            <th>Application Date</th>
                         </tr>
                         </thead>
                         <tbody>
                         {applications.length > 0 ? applications.map(app => (
-                            <tr key={app.id}>
-                                <td>{app.firstName} {app.lastName}</td>
+                            <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
+                                <td>{`${app.firstName} ${app.lastName}`}</td>
                                 <td>{app.project}</td>
-                                <td>{app.email}</td>
                                 <td>
-                                        <span className={`status-badge ${app.status.toLowerCase()}`}>
-                                            {app.status}
+                                        <span className={`status-badge ${app.status ? app.status.toLowerCase() : 'new'}`}>
+                                            {app.status || 'New'}
                                         </span>
                                 </td>
-                                <td>
-                                    {app.resumeFilename ? (
-                                        <a
-                                            href={`${API_BASE_URL}/uploads/${app.resumeFilename}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="resume-link"
-                                        >
-                                            View
-                                        </a>
-                                    ) : "N/A"}
-                                </td>
-                                <td className="actions-cell">
-                                    <div className="dropdown">
-                                        <button className="dropbtn">Actions</button>
-                                        <div className="dropdown-content">
-                                            <a href="#" onClick={() => handleStatusChange(app.id, 'Approved')}>Approve</a>
-                                            <a href="#" onClick={() => handleStatusChange(app.id, 'Rejected')}>Reject</a>
-                                            <a href="#" onClick={() => handleEditApplication(app)}>Edit</a>
-                                            <a href="#" onClick={() => handleDelete(app.id)}>Delete</a>
-                                        </div>
-                                    </div>
-                                </td>
+                                <td>{formatDate(app.createdAt)}</td>
                             </tr>
                         )) : (
-                            <tr>
-                                <td colSpan="6">No applications found.</td>
-                            </tr>
+                            <tr><td colSpan="4">No applications found.</td></tr>
                         )}
                         </tbody>
                     </table>
                 </div>
             )}
 
-            {/* You would have modals here for creating/editing applications */}
+            <Modal isOpen={!!selectedApp} onClose={() => setSelectedApp(null)}>
+                {selectedApp && (
+                    <div className="app-modal-content">
+                        <div className="modal-header">
+                            <h2>{selectedApp.firstName} {selectedApp.lastName}</h2>
+                            <span className={`status-badge ${selectedApp.status ? selectedApp.status.toLowerCase() : 'new'}`}>
+                                {selectedApp.status || 'New'}
+                            </span>
+                        </div>
+                        <div className="modal-details">
+                            <p><strong>Project:</strong> {selectedApp.project}</p>
+                            <p><strong>Email:</strong> {selectedApp.email}</p>
+                            <p><strong>Degree:</strong> {selectedApp.degree}</p>
+                            <p><strong>Age:</strong> {selectedApp.age}</p>
+                            <p><strong>Experience:</strong> {selectedApp.experience}</p>
+                            <hr/>
+                            <p><strong>Application Date:</strong> {formatDate(selectedApp.createdAt)}</p>
+                            <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
+                        </div>
+                        <div className="modal-actions-footer">
+                            <a href={selectedApp.resumeFilename} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
+                                View Resume
+                            </a>
+                            <div className="status-actions">
+                                <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
+                                <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
+                            </div>
+                            <button className="action-button delete" onClick={() => handleDelete(selectedApp.id)}>Delete Application</button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };

@@ -51,6 +51,7 @@
 }
 
 .admin-main-content {
+    position: relative; /* Add this to act as a positioning context for modals */
     flex-grow: 1;
     padding: 2rem;
     overflow-y: auto;

@@ -6,8 +6,7 @@
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
 }
-
-.admin-page-content .page-header {
+.page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -15,116 +14,73 @@
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #ddd;
 }
+.page-header h1 { margin: 0; color: var(--dark-serpent); }
+.table-container { width: 100%; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #f0f2f5; color: var(--dark-serpent); vertical-align: middle; }
+thead th { background-color: #f8f9fa; font-weight: 600; font-size: 0.9rem; text-transform: uppercase; color: #555; }
+tbody tr:last-child td { border-bottom: none; }
 
-.admin-page-content .page-header h1 {
-    margin: 0;
-    color: var(--dark-serpent);
+/* --- NEW: Clickable Row Style --- */
+tbody tr.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
-
-.table-container {
-    width: 100%;
-    overflow: hidden;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 1rem 1.25rem;
-    text-align: left;
-    border-bottom: 1px solid #f0f2f5;
-    color: var(--dark-serpent);
-    vertical-align: middle;
-}
-
-thead th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    color: #555;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
-}
-
-tbody tr:hover {
+tbody tr.clickable-row:hover {
     background-color: #f8f9fa;
 }
 
-.status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
+/* Status Badge Styles */
+.status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; color: white; text-align: center; }
+.status-badge.new { background-color: #1890ff; }
+.status-badge.approved { background-color: #52c41a; }
+.status-badge.rejected { background-color: #f5222d; }
+
+/* --- MODAL STYLES --- */
+.app-modal-content .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+.app-modal-content h2 { margin: 0; }
+.modal-details p { margin: 0.5rem 0; line-height: 1.6; }
+.modal-details strong { color: #333; }
+.modal-details hr { border: 0; border-top: 1px solid #eee; margin: 1rem 0; }
+
+.modal-actions-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-button {
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
     color: white;
     text-align: center;
 }
-
-.status-badge.new {
-    background-color: #1890ff; /* Blue */
-}
-.status-badge.approved {
-    background-color: #52c41a; /* Green */
-}
-.status-badge.rejected {
-    background-color: #f5222d; /* Red */
+.action-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
-.resume-link {
-    font-weight: 600;
-    color: var(--castleton-green);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-.resume-link:hover {
-    text-decoration: underline;
-    color: var(--saffaron);
-}
+.action-button.view-resume { background-color: var(--castleton-green); }
+.action-button.approve { background-color: #52c41a; }
+.action-button.reject { background-color: #ff9800; }
+.action-button.delete { background-color: #f44336; }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropbtn {
-    background-color: #f0f2f5;
-    color: var(--dark-serpent);
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
+.status-actions {
+    display: flex;
+    gap: 0.5rem;
 }

@@ -1,22 +1,20 @@
 /* src/styles/pages/Apply.css */
-
 .apply-container {
-    padding: 2rem 5%;
+    padding: 4rem 5%; /* Add more vertical padding */
     text-align: center;
+    background-color: #f0f2f5; /* A neutral, professional background */
+    min-height: calc(100vh - 64px); /* Ensure it takes full height */
 }
 
 .apply-container h2 {
     font-size: 2.5rem;
-    /* --- CORRECTED --- */
-    color: var(--dark-serpent); /* Changed from --paper */
+    color: var(--dark-serpent); /* Dark text for light background */
 }
 
 .apply-container p {
     font-size: 1.1rem;
-    /* --- CORRECTED --- */
-    color: var(--dark-serpent); /* Changed from --sea-salt */
-    opacity: 0.9;
-    margin-bottom: 2rem;
+    color: #555; /* Slightly lighter text */
+    margin-bottom: 3rem; /* More space above the form */
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
