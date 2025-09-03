@@ -31,6 +31,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- ADD THIS DEPENDENCY FOR CLOUDINARY -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.38.0</version> <!-- A recent stable version -->
+        </dependency>
+
         <!-- Database Driver -->
         <dependency>
             <groupId>com.mysql</groupId>
