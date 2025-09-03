@@ -1,45 +1,33 @@
-// ... (imports)
+import React from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import useDocumentTitle from '../../components/useDocumentTitle';
+import '../../styles/pages/AdminDashboardLayout.css'; // New CSS file
 
 const AdminDashboard = () => {
-    // ... (existing state and hooks)
+    useDocumentTitle('Admin Dashboard | Lifewood Data Technology');
+    const navigate = useNavigate();
 
-    const handleCreateAdmin = async () => {
-        const newUsername = prompt("Enter the username for the new admin:");
-        if (newUsername) {
-            try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ username: newUsername }),
-                });
-
-                const message = await response.text();
-                if (!response.ok) throw new Error(message);
-
-                alert(message); // "Admin user created successfully..."
-            } catch (err) {
-                alert(`Error: ${err.message}`);
-            }
-        }
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        navigate('/admin/login');
     };
 
-    // ... (existing functions like handleDelete, handleLogout)
-
     return (
-        <div className="admin-container dashboard">
-            <div className="dashboard-header">
-                <h1>Application Dashboard</h1>
-                <div>
-                    {/* --- NEW BUTTON --- */}
-                    <button className="admin-button" onClick={handleCreateAdmin}>+ Create Admin</button>
-                    <button className="admin-button logout" onClick={handleLogout}>Logout</button>
+        <div className="admin-dashboard-layout">
+            <nav className="admin-sidebar">
+                <div className="sidebar-header">
+                    <h2>Admin Panel</h2>
                 </div>
-            </div>
-            {/* ... rest of JSX is unchanged ... */}
+                <div className="sidebar-links">
+                    <NavLink to="/admin/dashboard/applications">Application Management</NavLink>
+                    <NavLink to="/admin/dashboard/users">User Management</NavLink>
+                </div>
+                <button className="admin-button logout" onClick={handleLogout}>Logout</button>
+            </nav>
+            <main className="admin-main-content">
+                {/* Child routes will be rendered here */}
+                <Outlet />
+            </main>
         </div>
     );
 };

@@ -7,8 +7,9 @@ import Apply from './pages/Apply';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLayout from './components/layouts/AdminLayout';
-import ForceResetPassword from './pages/admin/ForceResetPassword'; // <-- THIS IS THE MISSING LINE
-
+import ForceResetPassword from './pages/admin/ForceResetPassword';
+import ApplicationManagement from './pages/admin/ApplicationManagement';
+import AdminManagement from './pages/admin/AdminManagement';
 const AppRouter = () => {
     return (
         <Routes>
@@ -17,12 +18,14 @@ const AppRouter = () => {
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/apply" element={<Apply />} />
-
             {/* Admin Routes */}
             <Route element={<AdminLayout />}>
                 <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/force-reset" element={<ForceResetPassword />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />}>
+                    <Route path="applications" element={<ApplicationManagement />} />
+                    <Route path="users" element={<AdminManagement />} />
+                </Route>
             </Route>
         </Routes>
     );
