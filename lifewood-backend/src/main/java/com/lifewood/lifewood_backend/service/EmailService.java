@@ -6,8 +6,8 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Personalization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,31 +21,35 @@ public class EmailService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     private final SendGrid sendGrid;
+    private final String approvalTemplateId;
 
-    // The constructor takes the API key injected from application.properties
-    public EmailService(@Value("${sendgrid.api.key}") String apiKey) {
+    // The constructor injects the API key and the Template ID from your properties
+    public EmailService(
+            @Value("${sendgrid.api.key}") String apiKey,
+            @Value("${sendgrid.template.id}") String templateId) {
         this.sendGrid = new SendGrid(apiKey);
+        this.approvalTemplateId = templateId;
     }
 
     public void sendApprovalEmail(Application application) {
-        // IMPORTANT: This email must match the one you verified on SendGrid
-        Email from = new Email("markjanzen123@gmail.com");
-
-        String subject = "Congratulations! Your Application to Lifewood has been Approved";
+        Email from = new Email("markjanzen123@gmail.com"); // Your verified sender
         Email to = new Email(application.getEmail());
 
-        String htmlContent = "<html><body>"
-                + "<h3>Dear " + application.getFirstName() + ",</h3>"
-                + "<p>We are thrilled to inform you that your application for the <strong>" + application.getProject() + "</strong> project at Lifewood Data Technology has been <strong>approved</strong>!</p>"
-                + "<p>We were very impressed with your qualifications and experience. Our team will be in contact with you shortly with the next steps.</p>"
-                + "<p>Congratulations again, and welcome to the team!</p>"
-                + "<br/>"
-                + "<p>Best regards,</p>"
-                + "<p><strong>The Lifewood Team</strong></p>"
-                + "</body></html>";
+        // Create a personalization object. This is where your dynamic data goes.
+        Personalization personalization = new Personalization();
+        personalization.addTo(to);
 
-        Content content = new Content("text/html", htmlContent);
-        Mail mail = new Mail(from, subject, to, content);
+        // These keys must exactly match the {{...}} placeholders in your template
+        personalization.addDynamicTemplateData("firstName", application.getFirstName());
+        personalization.addDynamicTemplateData("project", application.getProject());
+        personalization.addDynamicTemplateData("logoUrl", "https://lh3.googleusercontent.com/d/1AJs69EP-muWh8WfguGBiD0ZSnZmfzTeO");
+
+        // Create the mail object, but without any HTML content
+        Mail mail = new Mail();
+        mail.setFrom(from);
+        mail.setSubject("Congratulations! Your Application to Lifewood has been Approved"); // This will be overridden by the template's subject
+        mail.addPersonalization(personalization);
+        mail.setTemplateId(this.approvalTemplateId); // This tells SendGrid which template to use
 
         Request request = new Request();
         try {
@@ -57,7 +61,6 @@ public class EmailService {
             LOGGER.info("Approval email sent to {}. Status Code: {}", application.getEmail(), response.getStatusCode());
         } catch (IOException ex) {
             LOGGER.error("Error sending approval email to {}: {}", application.getEmail(), ex.getMessage());
-            // Optionally re-throw a custom exception if you want the controller to know about the failure
         }
     }
 }
