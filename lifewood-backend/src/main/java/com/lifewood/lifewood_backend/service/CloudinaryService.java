@@ -14,7 +14,6 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    // The constructor reads the credentials from environment variables
     public CloudinaryService(
             @Value("${cloudinary.cloud_name}") String cloudName,
             @Value("${cloudinary.api_key}") String apiKey,
@@ -29,11 +28,17 @@ public class CloudinaryService {
 
     public Map<String, String> uploadFile(MultipartFile file) {
         try {
-            // Upload the file to Cloudinary
-            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            // --- THIS IS THE CRITICAL CHANGE ---
+            // We are adding the 'resource_type: "auto"' parameter.
+            // This tells Cloudinary to intelligently inspect the file and apply
+            // the best transformations, which includes making PDFs viewable.
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "resource_type", "auto"
+            ));
 
-            // Extract the secure URL and the public ID (for future deletion/management)
             String url = (String) uploadResult.get("secure_url");
+
+
             String publicId = (String) uploadResult.get("public_id");
             String contentType = (String) uploadResult.get("resource_type") + "/" + (String) uploadResult.get("format");
 
