@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import lifewoodLogo from '../assets/lifewood Logo.png';
+import lifewoodLogo from '../assets/Lifewood Logo.png';
 import '../styles/components/AdminHeader.css'; // New dedicated CSS file
 
 const AdminHeader = () => {
