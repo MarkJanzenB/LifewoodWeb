@@ -1,16 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import useDocumentTitle from '../components/useDocumentTitle'; // Import the hook
+import { useInView } from 'react-intersection-observer';
+import useDocumentTitle from '../components/useDocumentTitle';
 import Button from '../components/Button';
 import '../styles/pages/Home.css';
 
 const Home = () => {
-    useDocumentTitle('Lifewood Data Technology | Home'); // Use the hook
+    useDocumentTitle('Lifewood Data Technology | Home');
+
+    const [activeBackground, setActiveBackground] = useState('hero');
+
+    const { ref: heroRef, inView: heroInView } = useInView({ threshold: 0.5 });
+    const { ref: uniqueRef, inView: uniqueInView } = useInView({ threshold: 0.5 });
+    const { ref: pillarsRef, inView: pillarsInView } = useInView({ threshold: 0.5 });
+
+    useEffect(() => {
+        if (pillarsInView) {
+            setActiveBackground('pillars');
+        } else if (uniqueInView) {
+            setActiveBackground('unique');
+        } else {
+            setActiveBackground('hero');
+        }
+    }, [heroInView, uniqueInView, pillarsInView]);
 
     return (
         <>
-            {/* The <Helmet> component is removed */}
-            <div className="home-container">
+            <div className="home-background-container">
+                <div className={`bg-image hero-bg ${activeBackground === 'hero' ? 'active' : ''}`}></div>
+                <div className={`bg-image unique-bg ${activeBackground === 'unique' ? 'active' : ''}`}></div>
+                <div className={`bg-image pillars-bg ${activeBackground === 'pillars' ? 'active' : ''}`}></div>
+            </div>
+
+            <div ref={heroRef} className="home-container">
                 <h1 className="fade-in-up">Welcome to Lifewood</h1>
                 <p className="sub-headline fade-in-up" style={{ animationDelay: '0.2s' }}>
                     Pioneering Data Technology
@@ -19,37 +41,27 @@ const Home = () => {
                     Lifewood is at the forefront of technological innovation, driving global impact through cutting-edge projects in AI and machine learning. Join us to build the future.
                 </p>
                 <div className="fade-in-up" style={{ animationDelay: '0.6s' }}>
-                    <Link to="/apply">
-                        <Button>Apply Now</Button>
-                    </Link>
+                    <Link to="/apply"><Button>Apply Now</Button></Link>
                 </div>
             </div>
 
-            <section className="info-section fade-in-up">
+            <section ref={uniqueRef} className="info-section fade-in-up">
                 <div className="info-container">
                     <h2>What makes Lifewood unique?</h2>
                     <div className="two-column-layout">
                         <div className="column">
-                            <p>
-                                Lifewood is more than just a company that processes data, delivers at speed, and produces projects in multiple languages for some of the world’s largest organizations. While these capabilities are essential, they do not fully capture the essence of who we are. At our core, we must define and communicate our identity—both internally to our global teams and externally to our clients, investors, stakeholders, and friends spread across the world.
-                            </p>
-                            <p>
-                                The communications team began this journey by revisiting the Lifewood Strategic Positioning document presented in Malaysia in November 2023. This document outlines important themes and ideas that encapsulate Lifewood's approach to business, highlighting the role we play in Malaysia, Singapore, mainland China, and across South-East Asia and the world.
-                            </p>
+                            <p>Lifewood is more than just a company that processes data, delivers at speed, and produces projects in multiple languages for some of the world’s largest organizations. While these capabilities are essential, they do not fully capture the essence of who we are. At our core, we must define and communicate our identity—both internally to our global teams and externally to our clients, investors, stakeholders, and friends spread across the world.</p>
+                            <p>The communications team began this journey by revisiting the Lifewood Strategic Positioning document presented in Malaysia in November 2023. This document outlines important themes and ideas that encapsulate Lifewood's approach to business, highlighting the role we play in Malaysia, Singapore, mainland China, and across South-East Asia and the world.</p>
                         </div>
                         <div className="column">
-                            <p>
-                                With our headquarters in Malaysia, Lifewood is ideally situated to support the country's role as a super-bridge connecting China with other nations, especially during these times of tension between East and West. Our vast data resources have the potential to analyze social and environmental challenges not only in Malaysia but also in Singapore and beyond, contributing to social progress and development.
-                            </p>
-                            <p>
-                                Moreover, Lifewood places a strong emphasis on ESG (Environmental, Social, and Governance) principles, which are evident in our HR policies. In countries like Bangladesh, our Pottya team has taken significant steps to employ a high percentage of women and people with disabilities, particularly in an environment where these groups are often underrepresented.
-                            </p>
+                            <p>With our headquarters in Malaysia, Lifewood is ideally situated to support the country's role as a super-bridge connecting China with other nations, especially during these times of tension between East and West. Our vast data resources have the potential to analyze social and environmental challenges not only in Malaysia but also in Singapore and beyond, contributing to social progress and development.</p>
+                            <p>Moreover, Lifewood places a strong emphasis on ESG (Environmental, Social, and Governance) principles, which are evident in our HR policies. In countries like Bangladesh, our Pottya team has taken significant steps to employ a high percentage of women and people with disabilities, particularly in an environment where these groups are often underrepresented.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="pillars-section fade-in-up">
+            <section ref={pillarsRef} className="pillars-section fade-in-up">
                 <div className="pillars-container">
                     <h2>Our Core Pillars</h2>
                     <div className="pillars-grid">

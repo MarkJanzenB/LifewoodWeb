@@ -1,12 +1,26 @@
 /* src/styles/pages/AdminManagement.css */
 
+.admin-page-content {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
 .admin-page-content .page-header {
     text-align: center;
     margin-bottom: 2rem;
+    background: none;
+    padding: 0;
+    box-shadow: none;
+    border: none;
 }
+
 .admin-page-content .page-header h1 {
     margin-bottom: 0.5rem;
+    color: var(--dark-serpent);
 }
+
 .admin-page-content .page-header p {
     color: #555;
     font-size: 1rem;
@@ -23,12 +37,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem;
-    background-color: var(--white);
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .user-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
@@ -38,9 +53,10 @@
     cursor: not-allowed;
     opacity: 0.6;
 }
+
 .user-card.disabled:hover {
     transform: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: none;
 }
 
 .user-card .username {
@@ -55,9 +71,9 @@
     border-radius: 4px;
     color: var(--white);
 }
+
 .user-tag.root { background-color: var(--saffaron); }
 .user-tag.self { background-color: #1890ff; }
-
 
 /* Modal Specific Styles */
 .user-modal-content {

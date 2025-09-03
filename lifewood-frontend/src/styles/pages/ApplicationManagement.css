@@ -1,5 +1,12 @@
 /* src/styles/pages/ApplicationManagement.css */
 
+.admin-page-content {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+}
+
 .admin-page-content .page-header {
     display: flex;
     justify-content: space-between;
@@ -16,10 +23,7 @@
 
 .table-container {
     width: 100%;
-    background: var(--white);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden; /* Ensures rounded corners are respected by the table */
+    overflow: hidden;
 }
 
 table {
@@ -82,7 +86,6 @@ tbody tr:hover {
     color: var(--saffaron);
 }
 
-/* Actions Dropdown Styles */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -101,6 +104,7 @@ tbody tr:hover {
 .dropdown-content {
     display: none;
     position: absolute;
+    right: 0;
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
