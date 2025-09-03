@@ -4,6 +4,7 @@ import com.lifewood.lifewood_backend.model.AdminUser;
 import com.lifewood.lifewood_backend.model.Application;
 import com.lifewood.lifewood_backend.repository.AdminUserRepository;
 import com.lifewood.lifewood_backend.service.ApplicationService;
+import com.lifewood.lifewood_backend.service.EmailService; // <-- IMPORT
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
-    @Autowired
-    private ApplicationService applicationService;
-    @Autowired
-    private AdminUserRepository adminUserRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private ApplicationService applicationService;
+    @Autowired private AdminUserRepository adminUserRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private EmailService emailService; // <-- INJECT
 
     // --- APPLICATION MANAGEMENT ---
 
@@ -52,13 +51,22 @@ public class AdminController {
 
         application.setStatus(newStatus);
         Application updatedApplication = applicationService.saveApplication(application);
+
+        // --- TRIGGER EMAIL ON APPROVAL ---
+        if ("Approved".equalsIgnoreCase(newStatus)) {
+            try {
+                emailService.sendApprovalEmail(updatedApplication);
+            } catch (Exception e) {
+                // Log the error but don't fail the request, as the status update was successful.
+                System.err.println("CRITICAL: Failed to send approval email for application ID " + id + ". Please notify the team. Error: " + e.getMessage());
+            }
+        }
+
         return ResponseEntity.ok(updatedApplication);
     }
 
-    // Admin creating a new application (file upload not supported here for simplicity)
     @PostMapping("/applications")
     public Application createApplicationByAdmin(@RequestBody Application application) {
-        // This simple version doesn't handle resume uploads, but fulfills the 'Create' requirement
         return applicationService.saveApplication(application);
     }
 
