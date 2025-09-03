@@ -4,7 +4,7 @@ import ProjectCard from '../components/ProjectCard';
 import '../styles/pages/Projects.css';
 
 const Projects = () => {
-    useDocumentTitle('Our Projects | Lifewood Data Technology'); // Use the hook
+    useDocumentTitle('Lifewood Data Technology | Our Projects'); // Use the hook
 
     const projectList = [
         {

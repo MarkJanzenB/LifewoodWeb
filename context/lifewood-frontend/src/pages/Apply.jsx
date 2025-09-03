@@ -4,7 +4,7 @@ import useDocumentTitle from '../components/useDocumentTitle'; // Import the hoo
 import '../styles/pages/Apply.css';
 
 const Apply = () => {
-    useDocumentTitle('Apply Now | Lifewood Data Technology'); // Use the hook
+    useDocumentTitle('Lifewood Data Technology | Apply Now'); // Use the hook
 
     return (
         <div className="apply-container">

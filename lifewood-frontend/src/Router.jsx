@@ -11,6 +11,9 @@ import ApplicationManagement from './pages/admin/ApplicationManagement';
 import AdminManagement from './pages/admin/AdminManagement';
 import PublicLayout from './components/layouts/PublicLayout';
 import AdminLayout from './components/layouts/AdminLayout';
+import NotFound from './pages/NotFound'; // <-- IMPORT THE 404 PAGE
+
+
 
 const AppRouter = () => {
     return (
@@ -20,6 +23,7 @@ const AppRouter = () => {
                 <Route path="/about" element={<About />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/apply" element={<Apply />} />
+                <Route path="*" element={<NotFound />} />
             </Route>
 
             <Route element={<AdminLayout />}>

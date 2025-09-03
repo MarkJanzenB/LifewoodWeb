@@ -6,7 +6,7 @@ import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const AdminLogin = () => {
-    useDocumentTitle('Admin Portal | Lifewood Data Technology');
+    useDocumentTitle('Lifewood Admin | Admin Portal');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

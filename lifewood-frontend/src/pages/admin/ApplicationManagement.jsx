@@ -5,7 +5,7 @@ import Modal from '../../components/Modal';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Application Management | Lifewood Data Technology');
+    useDocumentTitle('Lifewood Admin | Application Management');
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);

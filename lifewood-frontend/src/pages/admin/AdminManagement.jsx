@@ -6,7 +6,7 @@ import Modal from '../../components/Modal'; // <-- NEW IMPORT
 import '../../styles/pages/AdminManagement.css'; // <-- NEW CSS FILE
 
 const AdminManagement = () => {
-    useDocumentTitle('Admin Management | Lifewood Data Technology');
+    useDocumentTitle('Lifewood Admin | Admin Management');
     const [users, setUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null); // For the modal
