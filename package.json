@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@bytescale/upload-widget-react": "^4.19.0",
     "jwt-decode": "^4.0.0"
   }
 }

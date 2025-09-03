@@ -1,0 +1,95 @@
+/* src/styles/components/AlertModal.css */
+.alert-modal-content {
+    text-align: center;
+    padding: 1rem;
+}
+
+.alert-title {
+    font-size: 1.5rem;
+    color: var(--dark-serpent);
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.alert-message {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.alert-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.alert-actions .action-button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.alert-actions .action-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.alert-actions .action-button.confirm {
+    background-color: var(--castleton-green);
+    color: white;
+}
+.alert-actions .action-button.cancel {
+    background-color: #f0f2f5;
+    color: var(--dark-serpent);
+    border: 1px solid #ddd;
+}/* src/styles/components/AlertModal.css */
+.alert-modal-content {
+    text-align: center;
+    padding: 1rem;
+}
+
+.alert-title {
+    font-size: 1.5rem;
+    color: var(--dark-serpent);
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.alert-message {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.alert-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.alert-actions .action-button {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.alert-actions .action-button:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.alert-actions .action-button.confirm {
+    background-color: var(--castleton-green);
+    color: white;
+}
+.alert-actions .action-button.cancel {
+    background-color: #f0f2f5;
+    color: var(--dark-serpent);
+    border: 1px solid #ddd;
+}

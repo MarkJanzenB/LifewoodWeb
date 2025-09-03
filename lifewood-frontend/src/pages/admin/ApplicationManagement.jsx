@@ -2,21 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
-import Button from '../../components/Button'; // Assuming you have a reusable Button component
+import Button from '../../components/Button';
+import { useAlert } from '../../context/AlertProvider'; // Import the hook
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
     useDocumentTitle('Application Management | Lifewood Data Technology');
+    const { showAlert, showConfirm } = useAlert(); // Use the hook
+
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedApp, setSelectedApp] = useState(null); // For viewing/editing in a modal
-
-    // State for the "Add Application" modal
+    const [selectedApp, setSelectedApp] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newAppData, setNewAppData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
-        experience: '', email: '', project: '', status: 'New'
+        experience: '', email: '', project: '', status: 'New', resumeLink: ''
     });
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
@@ -58,11 +59,11 @@ const ApplicationManagement = () => {
                 throw new Error(errorText || 'Failed to create application.');
             }
             setModalMessage({ type: 'success', text: 'Application created successfully!' });
-            fetchApplications(); // Refresh the list
+            fetchApplications();
             setTimeout(() => {
                 setIsCreateModalOpen(false);
                 setModalMessage({ type: '', text: '' });
-                setNewAppData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', status: 'New' });
+                setNewAppData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', status: 'New', resumeLink: '' });
             }, 1500);
         } catch (err) {
             setModalMessage({ type: 'error', text: err.message });
@@ -76,32 +77,38 @@ const ApplicationManagement = () => {
     const handleStatusChange = async (appId, newStatus) => {
         try {
             const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
+            await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status: newStatus }),
             });
-            if (!response.ok) throw new Error("Failed to update status.");
             fetchApplications();
-            setSelectedApp(null); // Close the modal on success
+            setSelectedApp(null);
         } catch (err) {
-            alert(`Error updating status: ${err.message}`);
+            showAlert(err.message, 'Update Failed');
         }
     };
 
     const handleDelete = async (appId) => {
-        if (window.confirm('Are you sure you want to delete this application?')) {
+        const confirmed = await showConfirm(
+            'This action cannot be undone. Are you sure you want to permanently delete this application?',
+            'Confirm Deletion',
+            'Delete',
+            'Cancel'
+        );
+
+        if (confirmed) {
             try {
                 const token = getToken();
-                const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
+                await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
-                if (!response.ok) throw new Error("Failed to delete application.");
+                showAlert('The application has been deleted successfully.', 'Success');
                 fetchApplications();
-                setSelectedApp(null); // Close the modal on success
+                setSelectedApp(null);
             } catch (err) {
-                alert(`Error deleting application: ${err.message}`);
+                showAlert(err.message, 'Deletion Failed');
             }
         }
     };
@@ -147,9 +154,7 @@ const ApplicationManagement = () => {
                                 <td>{formatDate(app.createdAt)}</td>
                             </tr>
                         )) : (
-                            <tr>
-                                <td colSpan="4">No applications found.</td>
-                            </tr>
+                            <tr><td colSpan="4">No applications found.</td></tr>
                         )}
                         </tbody>
                     </table>
@@ -176,7 +181,7 @@ const ApplicationManagement = () => {
                             <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
                         </div>
                         <div className="modal-actions-footer">
-                            <a href={selectedApp.resumeFilename} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
+                            <a href={selectedApp.resumeLink} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
                                 View Resume
                             </a>
                             <div className="status-actions">
@@ -219,6 +224,9 @@ const ApplicationManagement = () => {
                         </div>
                         <div className="form-group full-width">
                             <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
+                        </div>
+                        <div className="form-group full-width">
+                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>

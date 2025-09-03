@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import API_BASE_URL from '../apiConfig';
-import '../styles/components/ApplicationForm.css'; // We will completely rewrite this CSS
+import { useAlert } from '../context/AlertProvider'; // Import the hook
+import '../styles/components/ApplicationForm.css';
 
 const ApplicationForm = () => {
+    const { showAlert } = useAlert(); // Use the hook to get the showAlert function
+
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
-        experience: '', email: '', project: '',
+        experience: '', email: '', project: '', resumeLink: ''
     });
-
-    const [resume, setResume] = useState(null);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const location = useLocation();
 
     useEffect(() => {
@@ -32,40 +31,26 @@ const ApplicationForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleFileChange = (e) => {
-        setResume(e.target.files[0]);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
-        if (!resume) {
-            setError("Please attach your resume to submit.");
-            return;
-        }
-
-        const formDataPayload = new FormData();
-        formDataPayload.append('resume', resume);
-        formDataPayload.append('application', JSON.stringify(formData));
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/applications`, {
                 method: 'POST',
-                body: formDataPayload,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
             });
 
             if (response.ok) {
-                setSuccess('Application submitted successfully! We will be in touch.');
-                setFormData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '' });
+                showAlert('Your application has been submitted successfully! We will be in touch.', 'Success!');
                 e.target.reset();
-                setResume(null);
+                setFormData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', resumeLink: '' });
             } else {
                 const errorText = await response.text();
                 throw new Error(errorText || 'Failed to submit application.');
             }
         } catch (err) {
-            setError(err.message);
+            showAlert(err.message, 'Submission Error');
         }
     };
 
@@ -91,29 +76,17 @@ const ApplicationForm = () => {
             <div className="form-group full-width">
                 <textarea name="experience" placeholder="Relevant Experience" rows="5" value={formData.experience} onChange={handleChange} required />
             </div>
-
-            {/* --- MODERNIZED FILE INPUT --- */}
             <div className="form-group full-width">
-                <label htmlFor="resume" className="file-label">
-                    <span>Attach Resume (PDF, DOCX)</span>
-                    <span className="file-name">{resume ? resume.name : 'No file chosen'}</span>
-                </label>
                 <input
-                    type="file"
-                    id="resume"
-                    name="resume"
-                    onChange={handleFileChange}
-                    accept=".pdf,.doc,.docx"
+                    type="url"
+                    name="resumeLink"
+                    placeholder="Resume Link (e.g., Google Drive, must be public)"
+                    value={formData.resumeLink}
+                    onChange={handleChange}
                     required
                 />
             </div>
-
-            {/* Dedicated message container */}
-            <div className="form-messages">
-                {error && <p className="error-message form-error">{error}</p>}
-                {success && <p className="success-message">{success}</p>}
-            </div>
-
+            {/* The old error/success message tags are no longer needed */}
             <div className="form-submit-container">
                 <Button type="submit">Submit Application</Button>
             </div>

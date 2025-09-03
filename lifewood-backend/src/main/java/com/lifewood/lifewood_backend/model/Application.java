@@ -1,10 +1,10 @@
 package com.lifewood.lifewood_backend.model;
 
-import jakarta.persistence.*; // <-- Import this
+import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp; // <-- Import this
-import org.hibernate.annotations.UpdateTimestamp;   // <-- Import this
-import java.time.LocalDateTime; // <-- Import this
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -16,19 +16,21 @@ public class Application {
     private String lastName;
     private int age;
     private String degree;
+    @Column(length = 1024) // Make the experience field longer
     private String experience;
-    @Column(unique = true) // It's good practice to ensure emails are unique
+    @Column(unique = true)
     private String email;
     private String project;
     private String status = "New";
-    private String resumeFilename;
-    private String resumeContentType;
 
-    // --- NEW: AUTOMATIC TIMESTAMPS ---
+    // --- BY THIS NEW FIELD ---
+    @Column(length = 1024) // Use a long column for potentially long URLs
+    private String resumeLink;
+
     @CreationTimestamp
-    @Column(updatable = false) // This field should not be changed after creation
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp // This field will be automatically updated whenever the entity is saved
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
