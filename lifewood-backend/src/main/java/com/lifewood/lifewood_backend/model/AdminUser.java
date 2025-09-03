@@ -22,7 +22,7 @@ public class AdminUser {
     private boolean passwordChangeRequired = true;
 
     @Column(nullable = false)
-    private String role; // Add role field
+    private String role= "ADMIN"; // Add role field
 
     public AdminUser(String username, String password) {
         this.username = username;
