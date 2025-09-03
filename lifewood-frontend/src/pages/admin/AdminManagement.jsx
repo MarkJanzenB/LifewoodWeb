@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { jwtDecode } from 'jwt-decode'; // <-- NEW IMPORT
+import { jwtDecode } from 'jwt-decode';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
-import Modal from '../../components/Modal'; // <-- NEW IMPORT
-import '../../styles/pages/AdminManagement.css'; // <-- NEW CSS FILE
+import Modal from '../../components/Modal';
+import Button from '../../components/Button';
+import '../../styles/pages/AdminManagement.css';
 
 const AdminManagement = () => {
-    useDocumentTitle('Lifewood Admin | Admin Management');
+    useDocumentTitle('Admin Management | Lifewood Data Technology');
     const [users, setUsers] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
-    const [selectedUser, setSelectedUser] = useState(null); // For the modal
+    const [selectedUser, setSelectedUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newUsername, setNewUsername] = useState('');
+    const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
@@ -19,7 +24,6 @@ const AdminManagement = () => {
             const token = localStorage.getItem('authToken');
             if (!token) throw new Error("No auth token found.");
 
-            // Decode the token to get the current user's username
             const decodedToken = jwtDecode(token);
             setCurrentUser(decodedToken.sub);
 
@@ -40,6 +44,40 @@ const AdminManagement = () => {
         fetchUsers();
     }, [fetchUsers]);
 
+    const handleCreateAdmin = async (e) => {
+        e.preventDefault();
+        setModalMessage({ type: '', text: '' });
+
+        if (!newUsername) {
+            setModalMessage({ type: 'error', text: 'Username cannot be empty.' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ username: newUsername })
+            });
+
+            const message = await response.text();
+            if (!response.ok) throw new Error(message);
+
+            setModalMessage({ type: 'success', text: message });
+            setNewUsername('');
+            fetchUsers();
+
+            setTimeout(() => {
+                setIsCreateModalOpen(false);
+                setModalMessage({ type: '', text: '' });
+            }, 2000);
+
+        } catch (err) {
+            setModalMessage({ type: 'error', text: err.message });
+        }
+    };
+
     const handleDelete = async () => {
         if (!selectedUser || !window.confirm(`Are you sure you want to delete user: ${selectedUser.username}?`)) {
             return;
@@ -53,8 +91,8 @@ const AdminManagement = () => {
             const message = await response.text();
             if (!response.ok) throw new Error(message);
             alert(message);
-            setSelectedUser(null); // Close modal
-            fetchUsers(); // Refresh list
+            setSelectedUser(null);
+            fetchUsers();
         } catch (err) {
             alert(`Error: ${err.message}`);
         }
@@ -73,55 +111,82 @@ const AdminManagement = () => {
             const message = await response.text();
             if (!response.ok) throw new Error(message);
             alert(message);
-            setSelectedUser(null); // Close modal
-        } catch (err) {
-            alert(`Error: ${err.message}`);
-        }
-    };
+            setSelectedUser(null);
+        } catch (err){
+        alert(`Error: ${err.message}`);
+    }
+};
 
-    return (
-        <div className="admin-page-content">
-            <div className="page-header">
-                <h1>Admin User Management</h1>
-                <p>Click on a user to manage their account.</p>
-            </div>
-            {isLoading && <p>Loading users...</p>}
-            {error && <p className="error-message">{error}</p>}
-            <div className="admin-users-grid">
-                {users.map(user => {
-                    const isRoot = user.username === 'root';
-                    const isSelf = user.username === currentUser;
-                    const isDisabled = isRoot || isSelf;
-
-                    return (
-                        <div
-                            key={user.id}
-                            className={`user-card ${isDisabled ? 'disabled' : ''}`}
-                            onClick={() => !isDisabled && setSelectedUser(user)}
-                            title={isDisabled ? "This user cannot be modified." : `Manage ${user.username}`}
-                        >
-                            <span className="username">{user.username}</span>
-                            {isRoot && <span className="user-tag root">ROOT</span>}
-                            {isSelf && <span className="user-tag self">YOU</span>}
-                        </div>
-                    );
-                })}
-            </div>
-
-            <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
-                {selectedUser && (
-                    <div className="user-modal-content">
-                        <h2>Manage User</h2>
-                        <p className="modal-username">{selectedUser.username}</p>
-                        <div className="modal-actions">
-                            <button className="action-button reset" onClick={handleResetPassword}>Reset Password</button>
-                            <button className="action-button delete" onClick={handleDelete}>Remove User</button>
-                        </div>
-                    </div>
-                )}
-            </Modal>
+return (
+    <div className="admin-page-content">
+        <div className="page-header">
+            <h1>Admin User Management</h1>
+            <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>
+                + Add New Admin
+            </button>
         </div>
-    );
+        {isLoading && <p>Loading users...</p>}
+        {error && <p className="error-message">{error}</p>}
+        <div className="admin-users-grid">
+            {users.map(user => {
+                const isRoot = user.username === 'root';
+                const isSelf = user.username === currentUser;
+                const isDisabled = isRoot || isSelf;
+                return (
+                    <div
+                        key={user.id}
+                        className={`user-card ${isDisabled ? 'disabled' : ''}`}
+                        onClick={() => !isDisabled && setSelectedUser(user)}
+                        title={isDisabled ? "This user cannot be modified." : `Manage ${user.username}`}
+                    >
+                        <span className="username">{user.username}</span>
+                        {isRoot && <span className="user-tag root">ROOT</span>}
+                        {isSelf && <span className="user-tag self">YOU</span>}
+                    </div>
+                );
+            })}
+        </div>
+
+        <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
+            {selectedUser && (
+                <div className="user-modal-content">
+                    <h2>Manage User</h2>
+                    <p className="modal-username">{selectedUser.username}</p>
+                    <div className="modal-actions">
+                        <button className="action-button reset" onClick={handleResetPassword}>Reset Password</button>
+                        <button className="action-button delete" onClick={handleDelete}>Remove User</button>
+                    </div>
+                </div>
+            )}
+        </Modal>
+
+        <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
+            <div className="user-modal-content">
+                <h2>Create New Admin User</h2>
+                <p>A new admin will be created with the default password 'root'. They will be required to reset it on their first login.</p>
+                <form onSubmit={handleCreateAdmin} className="modal-form">
+                    <div className="input-group">
+                        <label htmlFor="new-username">Username</label>
+                        <input
+                            type="text"
+                            id="new-username"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            placeholder="e.g., new.admin@lifewood.com"
+                            required
+                        />
+                    </div>
+                    {modalMessage.text && (
+                        <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>
+                            {modalMessage.text}
+                        </p>
+                    )}
+                    <Button type="submit">Create Admin</Button>
+                </form>
+            </div>
+        </Modal>
+    </div>
+);
 };
 
 export default AdminManagement;
