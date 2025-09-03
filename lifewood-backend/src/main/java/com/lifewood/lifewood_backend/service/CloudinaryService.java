@@ -28,17 +28,14 @@ public class CloudinaryService {
 
     public Map<String, String> uploadFile(MultipartFile file) {
         try {
-            // --- THIS IS THE CRITICAL CHANGE ---
-            // We are adding the 'resource_type: "auto"' parameter.
-            // This tells Cloudinary to intelligently inspect the file and apply
-            // the best transformations, which includes making PDFs viewable.
+            // --- THIS IS THE DEFINITIVE FIX ---
+            // We are explicitly telling Cloudinary to make this a public asset.
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "resource_type", "auto"
+                    "resource_type", "auto", // Detects if it's an image, video, or raw file (like PDF)
+                    "type", "upload"          // CRITICAL: Specifies the storage type as public
             ));
 
             String url = (String) uploadResult.get("secure_url");
-
-
             String publicId = (String) uploadResult.get("public_id");
             String contentType = (String) uploadResult.get("resource_type") + "/" + (String) uploadResult.get("format");
 
