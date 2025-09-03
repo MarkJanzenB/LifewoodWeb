@@ -2,14 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
+import Button from '../../components/Button'; // Assuming you have a reusable Button component
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Lifewood Admin | Application Management');
+    useDocumentTitle('Application Management | Lifewood Data Technology');
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedApp, setSelectedApp] = useState(null);
+    const [selectedApp, setSelectedApp] = useState(null); // For viewing/editing in a modal
+
+    // State for the "Add Application" modal
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newAppData, setNewAppData] = useState({
+        firstName: '', lastName: '', age: '', degree: '',
+        experience: '', email: '', project: '', status: 'New'
+    });
+    const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -34,16 +43,47 @@ const ApplicationManagement = () => {
         fetchApplications();
     }, [fetchApplications]);
 
+    const handleCreateSubmit = async (e) => {
+        e.preventDefault();
+        setModalMessage({ type: '', text: '' });
+        try {
+            const token = getToken();
+            const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(newAppData),
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to create application.');
+            }
+            setModalMessage({ type: 'success', text: 'Application created successfully!' });
+            fetchApplications(); // Refresh the list
+            setTimeout(() => {
+                setIsCreateModalOpen(false);
+                setModalMessage({ type: '', text: '' });
+                setNewAppData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', status: 'New' });
+            }, 1500);
+        } catch (err) {
+            setModalMessage({ type: 'error', text: err.message });
+        }
+    };
+
+    const handleNewAppChange = (e) => {
+        setNewAppData({ ...newAppData, [e.target.name]: e.target.value });
+    };
+
     const handleStatusChange = async (appId, newStatus) => {
         try {
             const token = getToken();
-            await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status: newStatus }),
             });
+            if (!response.ok) throw new Error("Failed to update status.");
             fetchApplications();
-            setSelectedApp(null);
+            setSelectedApp(null); // Close the modal on success
         } catch (err) {
             alert(`Error updating status: ${err.message}`);
         }
@@ -53,12 +93,13 @@ const ApplicationManagement = () => {
         if (window.confirm('Are you sure you want to delete this application?')) {
             try {
                 const token = getToken();
-                await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
+                if (!response.ok) throw new Error("Failed to delete application.");
                 fetchApplications();
-                setSelectedApp(null);
+                setSelectedApp(null); // Close the modal on success
             } catch (err) {
                 alert(`Error deleting application: ${err.message}`);
             }
@@ -76,7 +117,7 @@ const ApplicationManagement = () => {
         <div className="admin-page-content">
             <div className="page-header">
                 <h1>Application Submissions</h1>
-                <button className="admin-button">+ Add Application</button>
+                <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
             </div>
 
             {isLoading && <p>Loading applications...</p>}
@@ -106,7 +147,9 @@ const ApplicationManagement = () => {
                                 <td>{formatDate(app.createdAt)}</td>
                             </tr>
                         )) : (
-                            <tr><td colSpan="4">No applications found.</td></tr>
+                            <tr>
+                                <td colSpan="4">No applications found.</td>
+                            </tr>
                         )}
                         </tbody>
                     </table>
@@ -132,25 +175,61 @@ const ApplicationManagement = () => {
                             <p><strong>Application Date:</strong> {formatDate(selectedApp.createdAt)}</p>
                             <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
                         </div>
-
-                        {/* --- NEW, DE-CROWDED BUTTON LAYOUT --- */}
                         <div className="modal-actions-footer">
-                            {/* Group 1: Primary Action */}
                             <a href={selectedApp.resumeFilename} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
                                 View Resume
                             </a>
-
-                            {/* Group 2: Status Actions */}
                             <div className="status-actions">
                                 <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
                                 <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
                             </div>
-
-                            {/* Group 3: Destructive Action */}
                             <button className="action-button delete" onClick={() => handleDelete(selectedApp.id)}>Delete Application</button>
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
+                <div className="app-modal-content">
+                    <div className="modal-header">
+                        <h2>Add New Application</h2>
+                    </div>
+                    <form onSubmit={handleCreateSubmit} className="modal-form">
+                        <div className="form-group">
+                            <input type="text" name="firstName" placeholder="First Name" value={newAppData.firstName} onChange={handleNewAppChange} required />
+                            <input type="text" name="lastName" placeholder="Last Name" value={newAppData.lastName} onChange={handleNewAppChange} required />
+                        </div>
+                        <div className="form-group">
+                            <input type="number" name="age" placeholder="Age" value={newAppData.age} onChange={handleNewAppChange} required />
+                            <input type="text" name="degree" placeholder="Degree" value={newAppData.degree} onChange={handleNewAppChange} required />
+                        </div>
+                        <div className="form-group full-width">
+                            <input type="email" name="email" placeholder="Email Address" value={newAppData.email} onChange={handleNewAppChange} required />
+                        </div>
+                        <div className="form-group full-width">
+                            <select name="project" value={newAppData.project} onChange={handleNewAppChange} required>
+                                <option value="">Select a Project</option>
+                                <option value="AI Data Extraction">AI Data Extraction</option>
+                                <option value="Machine Learning Enablement">Machine Learning Enablement</option>
+                                <option value="Genealogy">Genealogy</option>
+                                <option value="Natural Language Processing">Natural Language Processing</option>
+                                <option value="AI-Enabled Customer Service">AI-Enabled Customer Service</option>
+                                <option value="Computer Vision">Computer Vision</option>
+                            </select>
+                        </div>
+                        <div className="form-group full-width">
+                            <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
+                        </div>
+                        {modalMessage.text && (
+                            <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>
+                                {modalMessage.text}
+                            </p>
+                        )}
+                        <div className="form-submit-container">
+                            <Button type="submit">Create Application</Button>
+                        </div>
+                    </form>
+                </div>
             </Modal>
         </div>
     );
