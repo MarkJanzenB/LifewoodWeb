@@ -28,8 +28,6 @@ public class ApplicationController {
             // Upload the file to Cloudinary and get the results
             Map<String, String> uploadResult = cloudinaryService.uploadFile(resumeFile);
 
-            // --- CRITICAL CHANGE ---
-            // We now store the public URL from Cloudinary, not a local filename
             application.setResumeFilename(uploadResult.get("url"));
             application.setResumeContentType(uploadResult.get("contentType"));
 
