@@ -14,7 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
@@ -85,8 +86,8 @@ public class AdminController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<?> createAdminUser(@RequestBody Map<String, String> payload) {
-        String newUsername = payload.get("username");
+    public ResponseEntity<?> createAdminUser(@RequestBody CreateUserRequest request) {
+        String newUsername = request.username(); // Get the username from the DTO
         if (newUsername == null || newUsername.isBlank()) {
             return ResponseEntity.badRequest().body("Username cannot be empty.");
         }
