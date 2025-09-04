@@ -7,12 +7,12 @@ import Apply from './pages/Apply';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ForceResetPassword from './pages/admin/ForceResetPassword';
-import ApplicationManagement from './pages/admin/ApplicationManagement';
-import AdminManagement from './pages/admin/AdminManagement';
+import ApplicationManagement from './pages/admin/ApplicationManagement'; // This should now be correct
+import AdminManagement from './pages/admin/AdminManagement';       // And this one too
 import NotFound from './pages/NotFound';
 import PublicLayout from './components/layouts/PublicLayout';
 import AdminLayout from './components/layouts/AdminLayout';
-import ProtectedRoute from './components/ProtectedRoute'; // <-- IMPORT THE GUARD
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppRouter = () => {
     return (
@@ -28,11 +28,9 @@ const AppRouter = () => {
 
             {/* --- ADMIN ROUTES --- */}
             <Route element={<AdminLayout />}>
-                {/* These routes are public for admins (login and reset) */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/force-reset" element={<ForceResetPassword />} />
 
-                {/* --- PROTECTED ADMIN ROUTES --- */}
                 <Route
                     path="/admin/dashboard"
                     element={
@@ -42,6 +40,8 @@ const AppRouter = () => {
                     }
                 >
                     <Route index element={<Navigate to="applications" replace />} />
+
+                    {/* Ensure the paths point to the right components */}
                     <Route path="applications" element={<ApplicationManagement />} />
                     <Route path="users" element={<AdminManagement />} />
                 </Route>

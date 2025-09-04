@@ -14,6 +14,11 @@ const ApplicationManagement = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedApp, setSelectedApp] = useState(null);
+
+    // State for managing the active tab
+    const [activeTab, setActiveTab] = useState('New');
+
+    // State for the "Add Application" modal
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newAppData, setNewAppData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
@@ -21,12 +26,18 @@ const ApplicationManagement = () => {
     });
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
+    const getToken = () => localStorage.getItem('authToken');
+
     const fetchApplications = useCallback(async () => {
         setIsLoading(true);
+        setError(null);
         try {
-            // NOTE: No manual Authorization header is needed. The browser sends the session cookie.
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications`);
-            if (!response.ok) throw new Error('Failed to fetch applications. You may need to log in again.');
+            const token = getToken();
+            // Fetch applications based on the active tab's status
+            const response = await fetch(`${API_BASE_URL}/api/admin/applications/status/${activeTab}`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            if (!response.ok) throw new Error(`Failed to fetch ${activeTab} applications.`);
             const data = await response.json();
             setApplications(data);
         } catch (err) {
@@ -34,7 +45,7 @@ const ApplicationManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [activeTab]); // Refetch when the activeTab changes
 
     useEffect(() => {
         fetchApplications();
@@ -44,10 +55,10 @@ const ApplicationManagement = () => {
         e.preventDefault();
         setModalMessage({ type: '', text: '' });
         try {
-            // NOTE: No manual Authorization header needed
+            const token = getToken();
             const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(newAppData),
             });
             if (!response.ok) {
@@ -55,7 +66,7 @@ const ApplicationManagement = () => {
                 throw new Error(errorText || 'Failed to create application.');
             }
             setModalMessage({ type: 'success', text: 'Application created successfully!' });
-            fetchApplications();
+            fetchApplications(); // Refresh the list
             setTimeout(() => {
                 setIsCreateModalOpen(false);
                 setModalMessage({ type: '', text: '' });
@@ -72,12 +83,13 @@ const ApplicationManagement = () => {
 
     const handleStatusChange = async (appId, newStatus) => {
         try {
-            // NOTE: No manual Authorization header needed
+            const token = getToken();
             await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ status: newStatus }),
             });
+            showAlert(`Application successfully marked as ${newStatus}.`, 'Status Updated');
             fetchApplications();
             setSelectedApp(null);
         } catch (err) {
@@ -92,9 +104,10 @@ const ApplicationManagement = () => {
         );
         if (confirmed) {
             try {
-                // NOTE: No manual Authorization header needed
+                const token = getToken();
                 await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
                     method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
                 });
                 showAlert('The application has been deleted successfully.', 'Success');
                 fetchApplications();
@@ -112,10 +125,12 @@ const ApplicationManagement = () => {
         });
     };
 
-    // This function handles opening the resume link in a new tab.
-    // The browser's session cookie will be sent automatically with the request.
-    const handleViewResume = (appId) => {
-        window.open(`${API_BASE_URL}/api/admin/applications/${appId}/resume`, '_blank');
+    const handleViewResume = (resumeLink) => {
+        if (resumeLink) {
+            window.open(resumeLink, '_blank');
+        } else {
+            showAlert("No resume link was provided for this application.", "Resume Not Found");
+        }
     };
 
     return (
@@ -123,6 +138,27 @@ const ApplicationManagement = () => {
             <div className="page-header">
                 <h1>Application Submissions</h1>
                 <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
+            </div>
+
+            <div className="tabs-container">
+                <button
+                    className={`tab-button ${activeTab === 'New' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('New')}
+                >
+                    New Applications
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'Approved' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('Approved')}
+                >
+                    Approved
+                </button>
+                <button
+                    className={`tab-button ${activeTab === 'Rejected' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('Rejected')}
+                >
+                    Rejected
+                </button>
             </div>
 
             {isLoading && <p>Loading applications...</p>}
@@ -152,7 +188,7 @@ const ApplicationManagement = () => {
                                 <td>{formatDate(app.createdAt)}</td>
                             </tr>
                         )) : (
-                            <tr><td colSpan="4">No applications found.</td></tr>
+                            <tr><td colSpan="4">No applications found in this category.</td></tr>
                         )}
                         </tbody>
                     </table>
@@ -181,14 +217,18 @@ const ApplicationManagement = () => {
                         <div className="modal-actions-footer">
                             <button
                                 className="action-button view-resume"
-                                onClick={() => handleViewResume(selectedApp.id)}
-                                disabled={!selectedApp.resumeData}
+                                onClick={() => handleViewResume(selectedApp.resumeLink)}
+                                disabled={!selectedApp.resumeLink}
                             >
                                 View Resume
                             </button>
                             <div className="status-actions">
-                                <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
-                                <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
+                                {selectedApp.status === 'New' && (
+                                    <>
+                                        <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
+                                        <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
+                                    </>
+                                )}
                             </div>
                             <button className="action-button delete" onClick={() => handleDelete(selectedApp.id)}>Delete Application</button>
                         </div>
@@ -225,7 +265,7 @@ const ApplicationManagement = () => {
                             <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
                         </div>
                         <div className="form-group full-width">
-                            <p style={{fontSize: '0.8rem', color: '#555', textAlign: 'center'}}>Resume must be added manually after creation.</p>
+                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>

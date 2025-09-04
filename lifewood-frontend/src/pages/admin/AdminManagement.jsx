@@ -1,274 +1,196 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
-import { useAlert } from '../../context/AlertProvider';
-import '../../styles/pages/ApplicationManagement.css';
+import { useAlert } from '../../context/AlertProvider'; // Import the hook
+import '../../styles/pages/AdminManagement.css';
 
-const ApplicationManagement = () => {
-    useDocumentTitle('Application Management | Lifewood Data Technology');
-    const { showAlert, showConfirm } = useAlert();
+const AdminManagement = () => {
+    useDocumentTitle('Lifewood Admin | Admin Management');
+    const { showAlert, showConfirm } = useAlert(); // Use the hook
 
-    const [applications, setApplications] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [selectedApp, setSelectedApp] = useState(null);
-
-    const [activeTab, setActiveTab] = useState('New'); // Default to "New"
+    const [error, setError] = useState('');
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [newAppData, setNewAppData] = useState({
-        firstName: '', lastName: '', age: '', degree: '',
-        experience: '', email: '', project: '', status: 'New', resumeLink: ''
-    });
+    const [newUsername, setNewUsername] = useState('');
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
-    const getToken = () => localStorage.getItem('authToken');
-
-    const fetchApplications = useCallback(async () => {
+    const fetchUsers = useCallback(async () => {
         setIsLoading(true);
-        setError(null);
         try {
-            const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications/status/${activeTab}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
+            const token = localStorage.getItem('authToken');
+            if (!token) throw new Error("No auth token found.");
+
+            const decodedToken = jwtDecode(token);
+            setCurrentUser(decodedToken.sub);
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!response.ok) throw new Error(`Failed to fetch ${activeTab} applications.`);
+            if (!response.ok) throw new Error('Failed to fetch users.');
             const data = await response.json();
-            setApplications(data);
+            setUsers(data);
         } catch (err) {
             setError(err.message);
         } finally {
             setIsLoading(false);
         }
-    }, [activeTab]);
+    }, []);
 
     useEffect(() => {
-        fetchApplications();
-    }, [fetchApplications]);
+        fetchUsers();
+    }, [fetchUsers]);
 
-    const handleCreateSubmit = async (e) => {
+    const handleCreateAdmin = async (e) => {
         e.preventDefault();
         setModalMessage({ type: '', text: '' });
+        if (!newUsername) {
+            setModalMessage({ type: 'error', text: 'Username cannot be empty.' });
+            return;
+        }
         try {
-            const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(newAppData),
+                body: JSON.stringify({ username: newUsername })
             });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || 'Failed to create application.');
-            }
-            setModalMessage({ type: 'success', text: 'Application created successfully!' });
-            fetchApplications();
+            const message = await response.text();
+            if (!response.ok) throw new Error(message);
+            setModalMessage({ type: 'success', text: message });
+            setNewUsername('');
+            fetchUsers();
             setTimeout(() => {
                 setIsCreateModalOpen(false);
                 setModalMessage({ type: '', text: '' });
-                setNewAppData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', status: 'New', resumeLink: '' });
-            }, 1500);
+            }, 2000);
         } catch (err) {
             setModalMessage({ type: 'error', text: err.message });
         }
     };
 
-    const handleNewAppChange = (e) => {
-        setNewAppData({ ...newAppData, [e.target.name]: e.target.value });
-    };
-
-    const handleStatusChange = async (appId, newStatus) => {
-        try {
-            const token = getToken();
-            await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            showAlert(`Application successfully marked as ${newStatus}.`, 'Status Updated');
-            fetchApplications();
-            setSelectedApp(null);
-        } catch (err) {
-            showAlert(err.message, 'Update Failed');
-        }
-    };
-
-    const handleDelete = async (appId) => {
+    const handleDelete = async () => {
+        if (!selectedUser) return;
         const confirmed = await showConfirm(
-            'This action cannot be undone. Are you sure you want to permanently delete this application?',
-            'Confirm Deletion', 'Delete', 'Cancel'
+            `Are you sure you want to delete user: ${selectedUser.username}? This cannot be undone.`,
+            'Confirm Deletion',
+            'Delete',
+            'Cancel'
         );
         if (confirmed) {
             try {
-                const token = getToken();
-                await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedUser.id}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-                showAlert('The application has been deleted successfully.', 'Success');
-                fetchApplications();
-                setSelectedApp(null);
+                const message = await response.text();
+                if (!response.ok) throw new Error(message);
+                showAlert(message, 'Success');
+                setSelectedUser(null);
+                fetchUsers();
             } catch (err) {
                 showAlert(err.message, 'Deletion Failed');
             }
         }
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-        });
-    };
-
-    const handleViewResume = (appId) => {
-        window.open(`${API_BASE_URL}/api/admin/applications/${appId}/resume`, '_blank');
+    const handleResetPassword = async () => {
+        if (!selectedUser) return;
+        const confirmed = await showConfirm(
+            `Are you sure you want to reset the password for ${selectedUser.username}?`,
+            'Confirm Password Reset',
+            'Reset Password',
+            'Cancel'
+        );
+        if (confirmed) {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedUser.id}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const message = await response.text();
+                if (!response.ok) throw new Error(message);
+                showAlert(message, 'Success');
+                setSelectedUser(null);
+            } catch (err) {
+                showAlert(err.message, 'Reset Failed');
+            }
+        }
     };
 
     return (
         <div className="admin-page-content">
             <div className="page-header">
-                <h1>Application Submissions</h1>
-                <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
-            </div>
-
-            <div className="tabs-container">
-                <button
-                    className={`tab-button ${activeTab === 'New' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('New')}
-                >
-                    New Applications
-                </button>
-                <button
-                    className={`tab-button ${activeTab === 'Approved' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('Approved')}
-                >
-                    Approved
-                </button>
-                <button
-                    className={`tab-button ${activeTab === 'Rejected' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('Rejected')}
-                >
-                    Rejected
+                <h1>Admin User Management</h1>
+                <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>
+                    + Add New Admin
                 </button>
             </div>
-
-            {isLoading && <p>Loading applications...</p>}
+            {isLoading && <p>Loading users...</p>}
             {error && <p className="error-message">{error}</p>}
-
-            {!isLoading && !error && (
-                <div className="table-container">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Applicant Name</th>
-                            <th>Project</th>
-                            <th>Status</th>
-                            <th>Application Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {applications.length > 0 ? applications.map(app => (
-                            <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
-                                <td>{`${app.firstName} ${app.lastName}`}</td>
-                                <td>{app.project}</td>
-                                <td>
-                                        <span className={`status-badge ${app.status ? app.status.toLowerCase() : 'new'}`}>
-                                            {app.status || 'New'}
-                                        </span>
-                                </td>
-                                <td>{formatDate(app.createdAt)}</td>
-                            </tr>
-                        )) : (
-                            <tr><td colSpan="4">No applications found in this category.</td></tr>
-                        )}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            <Modal isOpen={!!selectedApp} onClose={() => setSelectedApp(null)}>
-                {selectedApp && (
-                    <div className="app-modal-content">
-                        <div className="modal-header">
-                            <h2>{selectedApp.firstName} {selectedApp.lastName}</h2>
-                            <span className={`status-badge ${selectedApp.status ? selectedApp.status.toLowerCase() : 'new'}`}>
-                                {selectedApp.status || 'New'}
-                            </span>
+            <div className="admin-users-grid">
+                {users.map(user => {
+                    const isRoot = user.username === 'root';
+                    const isSelf = user.username === currentUser;
+                    const isDisabled = isRoot || isSelf;
+                    return (
+                        <div
+                            key={user.id}
+                            className={`user-card ${isDisabled ? 'disabled' : ''}`}
+                            onClick={() => !isDisabled && setSelectedUser(user)}
+                            title={isDisabled ? "This user cannot be modified." : `Manage ${user.username}`}
+                        >
+                            <span className="username">{user.username}</span>
+                            {isRoot && <span className="user-tag root">ROOT</span>}
+                            {isSelf && <span className="user-tag self">YOU</span>}
                         </div>
-                        <div className="modal-details">
-                            <p><strong>Project:</strong> {selectedApp.project}</p>
-                            <p><strong>Email:</strong> {selectedApp.email}</p>
-                            <p><strong>Degree:</strong> {selectedApp.degree}</p>
-                            <p><strong>Age:</strong> {selectedApp.age}</p>
-                            <p><strong>Experience:</strong> {selectedApp.experience}</p>
-                            <hr/>
-                            <p><strong>Application Date:</strong> {formatDate(selectedApp.createdAt)}</p>
-                            <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
-                        </div>
-                        <div className="modal-actions-footer">
-                            <button
-                                className="action-button view-resume"
-                                onClick={() => handleViewResume(selectedApp.id)}
-                                disabled={!selectedApp.resumeData}
-                            >
-                                View Resume
-                            </button>
-                            <div className="status-actions">
-                                {/* Only show relevant buttons based on the current status */}
-                                {selectedApp.status === 'New' && (
-                                    <>
-                                        <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
-                                        <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
-                                    </>
-                                )}
-                            </div>
-                            <button className="action-button delete" onClick={() => handleDelete(selectedApp.id)}>Delete Application</button>
+                    );
+                })}
+            </div>
+
+            <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
+                {selectedUser && (
+                    <div className="user-modal-content">
+                        <h2>Manage User</h2>
+                        <p className="modal-username">{selectedUser.username}</p>
+                        <div className="modal-actions">
+                            <button className="action-button reset" onClick={handleResetPassword}>Reset Password</button>
+                            <button className="action-button delete" onClick={handleDelete}>Remove User</button>
                         </div>
                     </div>
                 )}
             </Modal>
 
             <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
-                <div className="app-modal-content">
-                    <div className="modal-header">
-                        <h2>Add New Application</h2>
-                    </div>
-                    <form onSubmit={handleCreateSubmit} className="modal-form">
-                        <div className="form-group">
-                            <input type="text" name="firstName" placeholder="First Name" value={newAppData.firstName} onChange={handleNewAppChange} required />
-                            <input type="text" name="lastName" placeholder="Last Name" value={newAppData.lastName} onChange={handleNewAppChange} required />
-                        </div>
-                        <div className="form-group">
-                            <input type="number" name="age" placeholder="Age" value={newAppData.age} onChange={handleNewAppChange} required />
-                            <input type="text" name="degree" placeholder="Degree" value={newAppData.degree} onChange={handleNewAppChange} required />
-                        </div>
-                        <div className="form-group full-width">
-                            <input type="email" name="email" placeholder="Email Address" value={newAppData.email} onChange={handleNewAppChange} required />
-                        </div>
-                        <div className="form-group full-width">
-                            <select name="project" value={newAppData.project} onChange={handleNewAppChange} required>
-                                <option value="">Select a Project</option>
-                                <option value="AI Data Extraction">AI Data Extraction</option>
-                                <option value="Machine Learning Enablement">Machine Learning Enablement</option>
-                                <option value="Genealogy">Genealogy</option>
-                            </select>
-                        </div>
-                        <div className="form-group full-width">
-                            <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
-                        </div>
-                        <div className="form-group full-width">
-                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
+                <div className="user-modal-content">
+                    <h2>Create New Admin User</h2>
+                    <p>A new admin will be created with the default password 'root'. They will be required to reset it on their first login.</p>
+                    <form onSubmit={handleCreateAdmin} className="modal-form">
+                        <div className="input-group">
+                            <label htmlFor="new-username">Username</label>
+                            <input
+                                type="text"
+                                id="new-username"
+                                value={newUsername}
+                                onChange={(e) => setNewUsername(e.target.value)}
+                                placeholder="e.g., new.admin@lifewood.com"
+                                required
+                            />
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>
                                 {modalMessage.text}
                             </p>
                         )}
-                        <div className="form-submit-container">
-                            <Button type="submit">Create Application</Button>
-                        </div>
+                        <Button type="submit">Create Admin</Button>
                     </form>
                 </div>
             </Modal>
@@ -276,4 +198,4 @@ const ApplicationManagement = () => {
     );
 };
 
-export default ApplicationManagement;
+export default AdminManagement;
