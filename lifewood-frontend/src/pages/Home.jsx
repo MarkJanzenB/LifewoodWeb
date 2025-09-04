@@ -7,7 +7,7 @@ import EasterEgg from '../components/EasterEgg';
 import '../styles/pages/Home.css';
 
 const Home = () => {
-    useDocumentTitle('Lifewood | | Home');
+    useDocumentTitle('Lifewood | Home');
 
     // State for the shifting background effect
     const [activeBackground, setActiveBackground] = useState('hero');

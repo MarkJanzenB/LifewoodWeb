@@ -14,8 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,12 @@ public class AdminController {
     @GetMapping("/applications")
     public List<Application> getAllApplications() {
         return applicationService.getAllApplications();
+    }
+
+    // This is the new endpoint for fetching applications by their status.
+    @GetMapping("/applications/status/{status}")
+    public List<Application> getApplicationsByStatus(@PathVariable String status) {
+        return applicationService.getApplicationsByStatus(status);
     }
 
     @DeleteMapping("/applications/{id}")
@@ -58,7 +63,6 @@ public class AdminController {
         application.setStatus(newStatus);
         Application updatedApplication = applicationService.saveApplication(application);
 
-        // Trigger email based on the new status
         try {
             if ("Approved".equalsIgnoreCase(newStatus)) {
                 emailService.sendApprovalEmail(updatedApplication);
@@ -87,7 +91,7 @@ public class AdminController {
 
     @PostMapping("/users")
     public ResponseEntity<?> createAdminUser(@RequestBody CreateUserRequest request) {
-        String newUsername = request.username(); // Get the username from the DTO
+        String newUsername = request.username();
         if (newUsername == null || newUsername.isBlank()) {
             return ResponseEntity.badRequest().body("Username cannot be empty.");
         }
@@ -96,6 +100,7 @@ public class AdminController {
         }
         AdminUser newAdmin = new AdminUser(newUsername, passwordEncoder.encode("root"));
         newAdmin.setPasswordChangeRequired(true);
+        newAdmin.setRole("ADMIN");
         adminUserRepository.save(newAdmin);
         return ResponseEntity.ok("Admin user created successfully. Default password is 'root'.");
     }

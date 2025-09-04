@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional; // <-- Make sure this import is present
+import java.util.Optional;
 
 @Service
 public class ApplicationService {
@@ -21,7 +21,6 @@ public class ApplicationService {
         return repository.findAll();
     }
 
-    // --- THIS IS THE MISSING METHOD ---
     public Optional<Application> getApplicationById(Long id) {
         return repository.findById(id);
     }
@@ -42,5 +41,10 @@ public class ApplicationService {
             app.setStatus(updatedApp.getStatus());
             return repository.save(app);
         }).orElseThrow(() -> new RuntimeException("Application not found with id " + id));
+    }
+
+    // This is the new method to fetch applications based on their status.
+    public List<Application> getApplicationsByStatus(String status) {
+        return repository.findByStatus(status);
     }
 }
