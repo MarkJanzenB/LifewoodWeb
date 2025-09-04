@@ -1,0 +1,50 @@
+/* src/styles/components/EasterEgg.css */
+
+.easter-egg-content {
+    text-align: center;
+    padding: 1rem;
+}
+
+.dev-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Makes the photo circular */
+    object-fit: cover;
+    border: 4px solid var(--saffaron);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+}
+
+.egg-title {
+    color: var(--dark-serpent);
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+}
+
+.egg-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--castleton-green);
+    margin: 0.5rem 0;
+}
+
+.egg-message {
+    color: #555;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.portfolio-link {
+    display: inline-block;
+    background-color: var(--dark-serpent);
+    color: white !important; /* Ensure high contrast */
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.portfolio-link:hover {
+    background-color: var(--castleton-green);
+    transform: translateY(-2px);
+}
