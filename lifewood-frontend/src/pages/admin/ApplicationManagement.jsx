@@ -7,7 +7,7 @@ import { useAlert } from '../../context/AlertProvider';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Lifewood Admin | Application Management');
+    useDocumentTitle('Application Management | Lifewood Data Technology');
     const { showAlert, showConfirm } = useAlert();
 
     const [applications, setApplications] = useState([]);
@@ -15,16 +15,19 @@ const ApplicationManagement = () => {
     const [error, setError] = useState(null);
     const [selectedApp, setSelectedApp] = useState(null);
 
-    // State for managing the active tab
     const [activeTab, setActiveTab] = useState('New');
 
-    // State for the "Add Application" modal
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newAppData, setNewAppData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
         experience: '', email: '', project: '', status: 'New', resumeLink: ''
     });
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
+
+    const projects = [
+        'AI Data Extraction', 'Machine Learning Enablement', 'Genealogy',
+        'Natural Language Processing', 'AI-Enabled Customer Service', 'Computer Vision'
+    ];
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -33,7 +36,6 @@ const ApplicationManagement = () => {
         setError(null);
         try {
             const token = getToken();
-            // Fetch applications based on the active tab's status
             const response = await fetch(`${API_BASE_URL}/api/admin/applications/status/${activeTab}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
@@ -45,7 +47,7 @@ const ApplicationManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [activeTab]); // Refetch when the activeTab changes
+    }, [activeTab]);
 
     useEffect(() => {
         fetchApplications();
@@ -66,7 +68,7 @@ const ApplicationManagement = () => {
                 throw new Error(errorText || 'Failed to create application.');
             }
             setModalMessage({ type: 'success', text: 'Application created successfully!' });
-            fetchApplications(); // Refresh the list
+            fetchApplications();
             setTimeout(() => {
                 setIsCreateModalOpen(false);
                 setModalMessage({ type: '', text: '' });
@@ -237,11 +239,11 @@ const ApplicationManagement = () => {
             </Modal>
 
             <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
-                <div className="app-modal-content">
+                <div className="app-modal-content create-modal">
                     <div className="modal-header">
                         <h2>Add New Application</h2>
                     </div>
-                    <form onSubmit={handleCreateSubmit} className="modal-form">
+                    <form onSubmit={handleCreateSubmit} className="application-form">
                         <div className="form-group">
                             <input type="text" name="firstName" placeholder="First Name" value={newAppData.firstName} onChange={handleNewAppChange} required />
                             <input type="text" name="lastName" placeholder="Last Name" value={newAppData.lastName} onChange={handleNewAppChange} required />
@@ -256,9 +258,7 @@ const ApplicationManagement = () => {
                         <div className="form-group full-width">
                             <select name="project" value={newAppData.project} onChange={handleNewAppChange} required>
                                 <option value="">Select a Project</option>
-                                <option value="AI Data Extraction">AI Data Extraction</option>
-                                <option value="Machine Learning Enablement">Machine Learning Enablement</option>
-                                <option value="Genealogy">Genealogy</option>
+                                {projects.map(proj => <option key={proj} value={proj}>{proj}</option>)}
                             </select>
                         </div>
                         <div className="form-group full-width">
