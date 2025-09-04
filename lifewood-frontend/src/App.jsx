@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; // <-- Import useState and useEffect
 import { BrowserRouter as Router } from 'react-router-dom';
 import AppRouter from './Router';
-import EasterEgg from './components/EasterEgg'; // <-- Import the new component
+import EasterEgg from './components/EasterEgg.jsx'; // <-- Import the new component
 
 function App() {
     const [isEggVisible, setIsEggVisible] = useState(false);

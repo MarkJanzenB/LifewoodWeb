@@ -14,6 +14,7 @@ const EasterEgg = ({ isOpen, onClose }) => {
                 <p className="egg-message">
                     Thank you for exploring the Lifewood web application!
                 </p>
+                {/* Optional: Add a link to your portfolio or LinkedIn */}
                 <a
                     href="https://meet-markjanzenbandola.my.canva.site/" // Replace with your actual link
                     target="_blank"
