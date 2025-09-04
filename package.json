@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@bytescale/upload-widget-react": "^4.19.0",
-    "jwt-decode": "^4.0.0"
+    "jwt-decode": "^4.0.0",
+    "react-slick": "^0.31.0",
+    "slick-carousel": "^1.8.1"
   }
 }

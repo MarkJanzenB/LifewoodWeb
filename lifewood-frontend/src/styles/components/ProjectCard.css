@@ -1,22 +1,25 @@
 /* src/styles/components/ProjectCard.css */
 
 .project-card {
-    position: relative; /* Crucial for positioning the background and overlay */
+    position: relative; /* Essential for layering */
     background-color: var(--castleton-green);
-    padding: 2rem;
-    border-radius: 12px;
-    overflow: hidden; /* Keeps the background and overlay contained */
+    padding: 2.5rem;
+    border-radius: 16px; /* Slightly larger radius for a softer look */
+    overflow: hidden; /* Keeps all layers contained */
     transition: transform 0.4s ease, box-shadow 0.4s ease;
-    z-index: 1;
+    z-index: 1; /* Ensures cards are on a distinct layer */
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
 }
 
-/* The hover effect on the card itself */
+/* --- THE MODERNIZED HOVER EFFECT --- */
 .project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(-10px); /* A more pronounced "bob" */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* The new background image element */
+/* The background image that will be revealed */
 .card-background {
     position: absolute;
     top: 0;
@@ -26,11 +29,12 @@
     background-size: cover;
     background-position: center;
     opacity: 0; /* Hidden by default */
-    transition: opacity 0.5s ease-in-out;
-    z-index: -2; /* Sits behind everything */
+    transform: scale(1.1); /* Start slightly zoomed in for a nice effect */
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    z-index: -2; /* Sits at the very back */
 }
 
-/* The dark overlay that appears on hover */
+/* The dark overlay that ensures text is readable */
 .project-card::after {
     content: '';
     position: absolute;
@@ -38,28 +42,32 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
+    /* A strong gradient for readability */
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%);
     opacity: 0; /* Hidden by default */
     transition: opacity 0.5s ease-in-out;
-    z-index: -1; /* Sits between the content and the background image */
+    z-index: -1; /* Sits between the background image and the text */
 }
 
-/* When the card is hovered, fade in the background image and the overlay */
-.project-card:hover .card-background,
+/* On hover, fade in the background image, the overlay, and zoom the image out */
+.project-card:hover .card-background {
+    opacity: 1;
+    transform: scale(1);
+}
 .project-card:hover::after {
     opacity: 1;
 }
 
-/* The container for the text and link */
+/* The container for all text content */
 .card-content {
-    position: relative; /* Ensures this content stays on top */
+    position: relative; /* Keeps content on top of layers */
     z-index: 2;
-    height: 100%; /* Make it fill the card */
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-/* Style the text elements */
+/* Text styles with smooth transitions */
 .card-content h3 {
     margin-top: 0;
     font-size: 1.5rem;
@@ -70,7 +78,7 @@
 .card-content p {
     color: var(--sea-salt);
     line-height: 1.6;
-    flex-grow: 1; /* Pushes the apply link to the bottom */
+    flex-grow: 1;
     transition: color 0.4s ease;
 }
 
@@ -82,13 +90,12 @@
     transition: color 0.4s ease;
 }
 
-/* When the card is hovered, change all the text to be bright and readable */
+/* On hover, make all the text bright white to pop against the dark overlay */
 .project-card:hover .card-content h3,
-.project-card:hover .card-content p,
-.project-card:hover .card-content .apply-link {
+.project-card:hover .card-content p {
     color: var(--white);
 }
 
 .project-card:hover .card-content .apply-link {
-    color: var(--saffaron); /* Make the link stand out more on hover */
+    color: var(--saffaron); /* Make the link extra bright on hover */
 }

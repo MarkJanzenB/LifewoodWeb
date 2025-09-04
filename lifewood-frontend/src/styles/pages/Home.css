@@ -1,6 +1,5 @@
 /* src/styles/pages/Home.css */
 
-/* --- NEW BACKGROUND STYLES --- */
 .home-background-container {
     position: fixed;
     top: 0;
@@ -8,6 +7,24 @@
     width: 100%;
     height: 100vh;
     z-index: -1;
+    background-color: var(--paper); /* Fallback color */
+}
+
+/* --- NEW Video Background Styles --- */
+.bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+}
+.bg-video.active {
+    opacity: 1;
 }
 
 .home-background-container .bg-image {
@@ -18,27 +35,23 @@
     background-position: center;
     opacity: 0;
     transition: opacity 1.2s ease-in-out;
+    z-index: 2; /* Images are on top of the video */
 }
 .home-background-container .bg-image.active {
     opacity: 1;
 }
 
-.hero-bg {
-    background-color: var(--paper);
-}
 .unique-bg {
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg');
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg');
 }
 .pillars-bg {
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg');
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg');
 }
 
-
-/* --- UPDATED SECTION STYLES --- */
 .home-container, .info-section, .pillars-section {
-    background-color: transparent; /* Make sections see-through */
-    position: relative; /* Needed for z-index to work properly */
-    z-index: 1;
+    background-color: transparent;
+    position: relative;
+    z-index: 3; /* Content is on top of all backgrounds */
 }
 
 /* Hero Section Styles */
@@ -48,18 +61,19 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-height: 100vh; /* Make it full viewport height */
+    min-height: 100vh;
     padding: 2rem;
 }
 
+/* --- NEW: Hero content overlay for video readability --- */
 .home-container h1, .home-container .sub-headline, .home-container .description {
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Add shadow for readability on any background */
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    color: var(--white); /* Ensure text is white over the video */
 }
 
-.home-container h1 { font-size: 3.5rem; font-weight: 600; color: var(--dark-serpent); margin-bottom: 0rem; }
+.home-container h1 { font-size: 3.5rem; font-weight: 600; margin-bottom: 0rem; }
 .home-container .sub-headline { font-size: 1.5rem; font-weight: 500; color: var(--saffaron); margin-top: 0; margin-bottom: 2rem; }
-.home-container .description { max-width: 600px; font-size: 1.1rem; line-height: 1.6; color: var(--dark-serpent); opacity: 0.9; margin-bottom: 2.5rem; }
-
+.home-container .description { max-width: 600px; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin-bottom: 2.5rem; }
 
 /* Info and Pillars Section Styles */
 .info-section, .pillars-section {
@@ -98,23 +112,11 @@
     margin: 0 auto;
 }
 
-.two-column-layout .column p {
-    margin-top: 0;
-}
-
-.pillars-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.pillars-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-}
-
+.two-column-layout .column p { margin-top: 0; }
+.pillars-container { max-width: 1200px; margin: 0 auto; }
+.pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
 .pillar-card {
-    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent */
+    background-color: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
@@ -122,7 +124,6 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .pillar-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); }
 .pillar-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
 .pillar-content { padding: 1.5rem; }

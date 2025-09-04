@@ -20,14 +20,29 @@ const Home = () => {
         } else if (uniqueInView) {
             setActiveBackground('unique');
         } else {
-            setActiveBackground('hero');
+            // Check heroInView specifically to handle scrolling back up
+            if (heroInView) {
+                setActiveBackground('hero');
+            }
         }
     }, [heroInView, uniqueInView, pillarsInView]);
 
     return (
         <>
             <div className="home-background-container">
-                <div className={`bg-image hero-bg ${activeBackground === 'hero' ? 'active' : ''}`}></div>
+                {/* --- NEW: Video Background --- */}
+                <video
+                    className={`bg-video ${activeBackground === 'hero' ? 'active' : ''}`}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                >
+                    {/* A high-quality, royalty-free stock video */}
+                    <source src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4" />
+                </video>
+
+                {/* --- Image Backgrounds for other sections --- */}
                 <div className={`bg-image unique-bg ${activeBackground === 'unique' ? 'active' : ''}`}></div>
                 <div className={`bg-image pillars-bg ${activeBackground === 'pillars' ? 'active' : ''}`}></div>
             </div>
@@ -51,11 +66,9 @@ const Home = () => {
                     <div className="two-column-layout">
                         <div className="column">
                             <p>Lifewood is more than just a company that processes data, delivers at speed, and produces projects in multiple languages for some of the world’s largest organizations. While these capabilities are essential, they do not fully capture the essence of who we are. At our core, we must define and communicate our identity—both internally to our global teams and externally to our clients, investors, stakeholders, and friends spread across the world.</p>
-                            <p>The communications team began this journey by revisiting the Lifewood Strategic Positioning document presented in Malaysia in November 2023. This document outlines important themes and ideas that encapsulate Lifewood's approach to business, highlighting the role we play in Malaysia, Singapore, mainland China, and across South-East Asia and the world.</p>
                         </div>
                         <div className="column">
-                            <p>With our headquarters in Malaysia, Lifewood is ideally situated to support the country's role as a super-bridge connecting China with other nations, especially during these times of tension between East and West. Our vast data resources have the potential to analyze social and environmental challenges not only in Malaysia but also in Singapore and beyond, contributing to social progress and development.</p>
-                            <p>Moreover, Lifewood places a strong emphasis on ESG (Environmental, Social, and Governance) principles, which are evident in our HR policies. In countries like Bangladesh, our Pottya team has taken significant steps to employ a high percentage of women and people with disabilities, particularly in an environment where these groups are often underrepresented.</p>
+                            <p>With our headquarters in Malaysia, Lifewood is ideally situated to support the country's role as a super-bridge connecting China with other nations. Our vast data resources have the potential to analyze social and environmental challenges not only in Malaysia but also in Singapore and beyond, contributing to social progress and development.</p>
                         </div>
                     </div>
                 </div>
