@@ -3,46 +3,74 @@ import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import useDocumentTitle from '../components/useDocumentTitle';
 import Button from '../components/Button';
+import EasterEgg from '../components/EasterEgg';
 import '../styles/pages/Home.css';
 
 const Home = () => {
-    useDocumentTitle('Lifewood | Home');
+    useDocumentTitle('Lifewood Data Technology | Home');
 
+    // State for the shifting background effect
     const [activeBackground, setActiveBackground] = useState('hero');
 
+    // Hooks to observe when sections scroll into view
     const { ref: heroRef, inView: heroInView } = useInView({ threshold: 0.5 });
     const { ref: uniqueRef, inView: uniqueInView } = useInView({ threshold: 0.5 });
     const { ref: pillarsRef, inView: pillarsInView } = useInView({ threshold: 0.5 });
 
+    // State and logic for the Easter Egg feature
+    const [isEggVisible, setIsEggVisible] = useState(false);
+    const [sequence, setSequence] = useState('');
+    const secretCode = 'marklifewood';
+
+    // Effect for the keyboard listener to trigger the Easter Egg
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const newSequence = sequence + event.key.toLowerCase();
+            if (newSequence.endsWith(secretCode)) {
+                setIsEggVisible(true);
+                setSequence(''); // Reset for next time
+            } else {
+                // Keep the sequence from getting too long to save memory
+                setSequence(newSequence.slice(-secretCode.length));
+            }
+        };
+
+        // This listener is only active when the Home component is mounted
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup function to remove the listener when the user navigates away
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [sequence]); // Rerun the effect if the sequence changes
+
+    // Effect to update the active background based on which section is visible
     useEffect(() => {
         if (pillarsInView) {
             setActiveBackground('pillars');
         } else if (uniqueInView) {
             setActiveBackground('unique');
-        } else {
-            // Check heroInView specifically to handle scrolling back up
-            if (heroInView) {
-                setActiveBackground('hero');
-            }
+        } else if (heroInView) {
+            setActiveBackground('hero');
         }
     }, [heroInView, uniqueInView, pillarsInView]);
 
     return (
         <>
+            {/* The Easter Egg modal is now rendered from the Home page */}
+            <EasterEgg isOpen={isEggVisible} onClose={() => setIsEggVisible(false)} />
+
             <div className="home-background-container">
-                {/* --- NEW: Video Background --- */}
                 <video
                     className={`bg-video ${activeBackground === 'hero' ? 'active' : ''}`}
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="metadata"
                 >
-                    {/* A high-quality, royalty-free stock video */}
                     <source src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4" />
                 </video>
-
-                {/* --- Image Backgrounds for other sections --- */}
                 <div className={`bg-image unique-bg ${activeBackground === 'unique' ? 'active' : ''}`}></div>
                 <div className={`bg-image pillars-bg ${activeBackground === 'pillars' ? 'active' : ''}`}></div>
             </div>

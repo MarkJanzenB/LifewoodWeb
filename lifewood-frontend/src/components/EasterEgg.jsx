@@ -12,7 +12,7 @@ const EasterEgg = ({ isOpen, onClose }) => {
                 <h2 className="egg-title">Meet the Developer</h2>
                 <p className="egg-name">Mark Janzen Bandola</p>
                 <p className="egg-message">
-                    Thank you for exploring the Lifewood web application!
+                    Thank you for exploring Lifewood web application!
                 </p>
                 {/* Optional: Add a link to your portfolio or LinkedIn */}
                 <a
