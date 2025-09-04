@@ -16,7 +16,7 @@
         <option value="how to fix &#10;&#10;io.jsonwebtoken.io.DecodingException: Illegal base64 character: '-'&#10;&#9;at io.jsonwebtoken.io.Base64.ctoi(Base64.java:221) ~[jjwt-api-0.11.5.jar:0.11.5]&#10;&#9;at io.jsonwebtoken.io.Base64.decodeFast(Base64.java:270) ~[jjwt-api-0.11.5.jar:0.11.5]&#10;&#9;at io.jsonwebtoken.io.Base64Decoder.decode(Base64Decoder.java:36) ~[jjwt-api-0.11.5.jar:0.11.5]&#10;&#9;at io.jsonwebtoken.io.Base64Decoder.decode(Base64Decoder.java:23) ~[jjwt-api-0.11.5.jar:0.11.5]&#10;&#9;at io.jsonwebtoken.io.ExceptionPropagatingDecoder.decode(ExceptionPropagatingDecoder.java:36) ~[jjwt-api-0.11.5.jar:0.11.5]&#10;&#9;at io.jsonwebtoken.impl.DefaultJwtBuilder.signWith(DefaultJwtBuilder.java:132) ~[jjwt-impl-0.11.5.jar:0.11.5]&#10;&#9;at com.lifewood.lifewood_backend.util.JwtUtil.createToken(JwtUtil.java:36) ~[classes/:na]&#10;&#9;at com.lifewood.lifewood_backend.util.JwtUtil.generateToken(JwtUtil.java:31) ~[classes/:na]" />
       </list>
     </option>
-    <option name="selectedModel" value="codebuddy:GPT_4_Omni_Mini_V7" />
+    <option name="selectedModel" value="codebuddy:GPT5_V7" />
     <option name="ttsEnabled" value="false" />
   </component>
 </project>

@@ -3,12 +3,12 @@ import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
-import { useAlert } from '../../context/AlertProvider'; // Import the hook
+import { useAlert } from '../../context/AlertProvider';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('LIFEWOOD | Application Management');
-    const { showAlert, showConfirm } = useAlert(); // Use the hook
+    useDocumentTitle('Lifewood Admin |Application Management');
+    const { showAlert, showConfirm } = useAlert();
 
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -21,16 +21,12 @@ const ApplicationManagement = () => {
     });
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
-    const getToken = () => localStorage.getItem('authToken');
-
     const fetchApplications = useCallback(async () => {
         setIsLoading(true);
         try {
-            const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-            if (!response.ok) throw new Error('Failed to fetch applications.');
+            // NOTE: No manual Authorization header is needed. The browser sends the session cookie.
+            const response = await fetch(`${API_BASE_URL}/api/admin/applications`);
+            if (!response.ok) throw new Error('Failed to fetch applications. You may need to log in again.');
             const data = await response.json();
             setApplications(data);
         } catch (err) {
@@ -48,10 +44,10 @@ const ApplicationManagement = () => {
         e.preventDefault();
         setModalMessage({ type: '', text: '' });
         try {
-            const token = getToken();
+            // NOTE: No manual Authorization header needed
             const response = await fetch(`${API_BASE_URL}/api/admin/applications`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newAppData),
             });
             if (!response.ok) {
@@ -76,10 +72,10 @@ const ApplicationManagement = () => {
 
     const handleStatusChange = async (appId, newStatus) => {
         try {
-            const token = getToken();
+            // NOTE: No manual Authorization header needed
             await fetch(`${API_BASE_URL}/api/admin/applications/${appId}/status`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
             });
             fetchApplications();
@@ -92,17 +88,13 @@ const ApplicationManagement = () => {
     const handleDelete = async (appId) => {
         const confirmed = await showConfirm(
             'This action cannot be undone. Are you sure you want to permanently delete this application?',
-            'Confirm Deletion',
-            'Delete',
-            'Cancel'
+            'Confirm Deletion', 'Delete', 'Cancel'
         );
-
         if (confirmed) {
             try {
-                const token = getToken();
+                // NOTE: No manual Authorization header needed
                 await fetch(`${API_BASE_URL}/api/admin/applications/${appId}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` },
                 });
                 showAlert('The application has been deleted successfully.', 'Success');
                 fetchApplications();
@@ -118,6 +110,12 @@ const ApplicationManagement = () => {
         return new Date(dateString).toLocaleString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
+    };
+
+    // This function handles opening the resume link in a new tab.
+    // The browser's session cookie will be sent automatically with the request.
+    const handleViewResume = (appId) => {
+        window.open(`${API_BASE_URL}/api/admin/applications/${appId}/resume`, '_blank');
     };
 
     return (
@@ -181,9 +179,13 @@ const ApplicationManagement = () => {
                             <p><strong>Last Updated:</strong> {formatDate(selectedApp.updatedAt)}</p>
                         </div>
                         <div className="modal-actions-footer">
-                            <a href={selectedApp.resumeLink} target="_blank" rel="noopener noreferrer" className="action-button view-resume">
+                            <button
+                                className="action-button view-resume"
+                                onClick={() => handleViewResume(selectedApp.id)}
+                                disabled={!selectedApp.resumeData}
+                            >
                                 View Resume
-                            </a>
+                            </button>
                             <div className="status-actions">
                                 <button className="action-button approve" onClick={() => handleStatusChange(selectedApp.id, 'Approved')}>Approve</button>
                                 <button className="action-button reject" onClick={() => handleStatusChange(selectedApp.id, 'Rejected')}>Reject</button>
@@ -217,16 +219,13 @@ const ApplicationManagement = () => {
                                 <option value="AI Data Extraction">AI Data Extraction</option>
                                 <option value="Machine Learning Enablement">Machine Learning Enablement</option>
                                 <option value="Genealogy">Genealogy</option>
-                                <option value="Natural Language Processing">Natural Language Processing</option>
-                                <option value="AI-Enabled Customer Service">AI-Enabled Customer Service</option>
-                                <option value="Computer Vision">Computer Vision</option>
                             </select>
                         </div>
                         <div className="form-group full-width">
                             <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
                         </div>
                         <div className="form-group full-width">
-                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
+                            <p style={{fontSize: '0.8rem', color: '#555', textAlign: 'center'}}>Resume must be added manually after creation.</p>
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>

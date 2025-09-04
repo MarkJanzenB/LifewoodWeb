@@ -2,23 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import API_BASE_URL from '../apiConfig';
-import { useAlert } from '../context/AlertProvider'; // Import the hook
+import { useAlert } from '../context/AlertProvider';
 import '../styles/components/ApplicationForm.css';
 
 const ApplicationForm = () => {
-    const { showAlert } = useAlert(); // Use the hook to get the showAlert function
-
+    const { showAlert } = useAlert();
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
-        experience: '', email: '', project: '', resumeLink: ''
+        experience: '', email: '', project: ''
     });
+    const [resume, setResume] = useState(null);
     const location = useLocation();
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const project = params.get('project');
         if (project) {
-            setFormData(prevData => ({ ...prevData, project }));
+            setFormData(prev => ({ ...prev, project }));
         }
     }, [location]);
 
@@ -31,24 +31,36 @@ const ApplicationForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleFileChange = (e) => {
+        setResume(e.target.files[0]);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!resume) {
+            showAlert("Please attach your resume to submit.", "Missing File");
+            return;
+        }
+
+        const formDataPayload = new FormData();
+        formDataPayload.append('resume', resume);
+        formDataPayload.append('application', JSON.stringify(formData));
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/applications`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: formDataPayload,
             });
 
-            if (response.ok) {
-                showAlert('Your application has been submitted successfully! We will be in touch. Please Check your SPAM folder for updates', 'Success!');
-                e.target.reset();
-                setFormData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '', resumeLink: '' });
-            } else {
+            if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText || 'Failed to submit application.');
             }
+
+            showAlert('Application submitted successfully! We will be in touch.', 'Success!');
+            e.target.reset();
+            setFormData({ firstName: '', lastName: '', age: '', degree: '', experience: '', email: '', project: '' });
+            setResume(null);
         } catch (err) {
             showAlert(err.message, 'Submission Error');
         }
@@ -76,17 +88,22 @@ const ApplicationForm = () => {
             <div className="form-group full-width">
                 <textarea name="experience" placeholder="Relevant Experience" rows="5" value={formData.experience} onChange={handleChange} required />
             </div>
+
             <div className="form-group full-width">
+                <label htmlFor="resume" className="file-label">
+                    <span>Attach Resume (PDF, DOCX)</span>
+                    <span className="file-name">{resume ? resume.name : 'No file chosen'}</span>
+                </label>
                 <input
-                    type="url"
-                    name="resumeLink"
-                    placeholder="Resume Link (e.g., Google Drive, must be public)"
-                    value={formData.resumeLink}
-                    onChange={handleChange}
+                    type="file"
+                    id="resume"
+                    name="resume"
+                    onChange={handleFileChange}
+                    accept=".pdf,.doc,.docx"
                     required
                 />
             </div>
-            {/* The old error/success message tags are no longer needed */}
+
             <div className="form-submit-container">
                 <Button type="submit">Submit Application</Button>
             </div>
