@@ -5,7 +5,7 @@ import Button from '../components/Button';
 import '../styles/pages/ErrorPages.css'; // Shared stylesheet
 
 const NotFound = () => {
-    useDocumentTitle('Lifewood| 404 Not Found');
+    useDocumentTitle('Lifewood | 404 Not Found');
 
     return (
         <div className="error-page-container">

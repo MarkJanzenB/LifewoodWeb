@@ -5,7 +5,7 @@ import lifewoodLogo from '../assets/Lifewood Logo.png';
 import '../styles/pages/About.css';
 
 const About = () => {
-    useDocumentTitle('Lifewood| About Us'); // Use the hook
+    useDocumentTitle('Lifewood | About Us'); // Use the hook
 
     const [activeBackground, setActiveBackground] = useState('default');
     const { ref: visionRef, inView: visionInView } = useInView({ threshold: 0.4 });
