@@ -6,7 +6,7 @@ import Button from '../components/Button';
 import '../styles/pages/Home.css';
 
 const Home = () => {
-    useDocumentTitle('Lifewood Data Technology | Home');
+    useDocumentTitle('Lifewood| Home');
 
     const [activeBackground, setActiveBackground] = useState('hero');
 

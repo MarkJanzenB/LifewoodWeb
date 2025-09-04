@@ -4,7 +4,7 @@ import ProjectCard from '../components/ProjectCard';
 import '../styles/pages/Projects.css';
 
 const Projects = () => {
-    useDocumentTitle('Our Projects | Lifewood Data Technology');
+    useDocumentTitle('Lifewood| Our Projects');
 
     const projectList = [
         {

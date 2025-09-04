@@ -4,7 +4,7 @@ import useDocumentTitle from '../../components/useDocumentTitle';
 import '../../styles/pages/AdminDashboardLayout.css'; // New CSS file
 
 const AdminDashboard = () => {
-    useDocumentTitle('Lifewood Admin | Admin Dashboard');
+    useDocumentTitle('LIFEWOOD | Admin Dashboard');
     const navigate = useNavigate();
 
     const handleLogout = () => {

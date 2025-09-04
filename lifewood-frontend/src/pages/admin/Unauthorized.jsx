@@ -5,7 +5,7 @@ import Button from '../../components/Button';
 import '../../styles/pages/ErrorPages.css'; // We'll use a shared stylesheet
 
 const Unauthorized = () => {
-    useDocumentTitle('Lifewood Admin | Access Denied');
+    useDocumentTitle('LIFEWOOD | Access Denied');
 
     return (
         <div className="error-page-container">

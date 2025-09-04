@@ -7,7 +7,7 @@ import { useAlert } from '../../context/AlertProvider'; // Import the hook
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Lifewood Admin | Application Management');
+    useDocumentTitle('LIFEWOOD | Application Management');
     const { showAlert, showConfirm } = useAlert(); // Use the hook
 
     const [applications, setApplications] = useState([]);

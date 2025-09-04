@@ -5,7 +5,7 @@ import lifewoodLogo from '../assets/Lifewood Logo.png';
 import '../styles/pages/About.css';
 
 const About = () => {
-    useDocumentTitle('Lifewood Data Technology | About Us'); // Use the hook
+    useDocumentTitle('Lifewood| About Us'); // Use the hook
 
     const [activeBackground, setActiveBackground] = useState('default');
     const { ref: visionRef, inView: visionInView } = useInView({ threshold: 0.4 });
@@ -45,7 +45,7 @@ const About = () => {
 
                 <section className="about-section fade-in-up" style={{ animationDelay: '0.2s' }}>
                     <p className="intro-text">
-                        Lifewood Data Technology is a globally recognized leader in artificial intelligence and data-driven solutions. Our work is guided by two core principles: our Vision for the future and our Mission to achieve it.
+                        Lifewoodis a globally recognized leader in artificial intelligence and data-driven solutions. Our work is guided by two core principles: our Vision for the future and our Mission to achieve it.
                     </p>
                 </section>
 

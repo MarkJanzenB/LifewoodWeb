@@ -6,7 +6,7 @@ import API_BASE_URL from '../../apiConfig';
 import '../../styles/pages/Admin.css';
 
 const ForceResetPassword = () => {
-    useDocumentTitle('Lifewood Admin | Reset Password');
+    useDocumentTitle('LIFEWOOD | Reset Password');
     const navigate = useNavigate();
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
