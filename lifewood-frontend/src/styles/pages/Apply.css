@@ -1,20 +1,26 @@
 /* src/styles/pages/Apply.css */
+
 .apply-container {
-    padding: 4rem 5%; /* Add more vertical padding */
+    padding: 4rem 2rem; /* Adjusted padding for better spacing */
     text-align: center;
-    background-color: #f0f2f5; /* A neutral, professional background */
-    min-height: calc(100vh - 64px); /* Ensure it takes full height */
+
+    /* --- THIS IS THE NEW PROFESSIONAL BACKGROUND --- */
+    background-color: #f0f2f5; /* A light, neutral base color */
+    /* This is the same subtle hexagonal pattern from the admin dashboard */
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="28" height="49" viewBox="0 0 28 49"%3E%3Cg fill-rule="evenodd"%3E%3Cg id="hexagons" fill="%23d6dbe2" fill-opacity="0.4" fill-rule="nonzero"%3E%3Cpath d="M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v18.5l-13 7.5L0 33.5V15z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+
+    min-height: calc(100vh - 64px);
 }
 
 .apply-container h2 {
     font-size: 2.5rem;
-    color: var(--dark-serpent); /* Dark text for light background */
+    color: var(--dark-serpent);
 }
 
 .apply-container p {
     font-size: 1.1rem;
-    color: #555; /* Slightly lighter text */
-    margin-bottom: 3rem; /* More space above the form */
+    color: #555;
+    margin-bottom: 3rem;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;

@@ -7,10 +7,8 @@
     width: 100%;
     height: 100vh;
     z-index: -1;
-    background-color: var(--paper); /* Fallback color */
+    background-color: var(--paper);
 }
-
-/* --- NEW Video Background Styles --- */
 .bg-video {
     position: absolute;
     top: 50%;
@@ -26,7 +24,6 @@
 .bg-video.active {
     opacity: 1;
 }
-
 .home-background-container .bg-image {
     position: absolute;
     width: 100%;
@@ -35,12 +32,11 @@
     background-position: center;
     opacity: 0;
     transition: opacity 1.2s ease-in-out;
-    z-index: 2; /* Images are on top of the video */
+    z-index: 2;
 }
 .home-background-container .bg-image.active {
     opacity: 1;
 }
-
 .unique-bg {
     background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg');
 }
@@ -51,10 +47,9 @@
 .home-container, .info-section, .pillars-section {
     background-color: transparent;
     position: relative;
-    z-index: 3; /* Content is on top of all backgrounds */
+    z-index: 3;
 }
 
-/* Hero Section Styles */
 .home-container {
     display: flex;
     flex-direction: column;
@@ -64,23 +59,18 @@
     min-height: 100vh;
     padding: 2rem;
 }
-
-/* --- NEW: Hero content overlay for video readability --- */
 .home-container h1, .home-container .sub-headline, .home-container .description {
     text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    color: var(--white); /* Ensure text is white over the video */
+    color: var(--white);
 }
-
 .home-container h1 { font-size: 3.5rem; font-weight: 600; margin-bottom: 0rem; }
 .home-container .sub-headline { font-size: 1.5rem; font-weight: 500; color: var(--saffaron); margin-top: 0; margin-bottom: 2rem; }
 .home-container .description { max-width: 600px; font-size: 1.1rem; line-height: 1.6; opacity: 0.9; margin-bottom: 2.5rem; }
 
-/* Info and Pillars Section Styles */
 .info-section, .pillars-section {
     padding: 6rem 2rem;
     color: var(--white);
 }
-
 .info-section h2, .pillars-section h2 {
     text-align: center;
     font-size: 2.5rem;
@@ -90,18 +80,10 @@
     padding-bottom: 1rem;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
-
 .info-section h2::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 3px;
-    background-color: var(--saffaron);
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 3px; background-color: var(--saffaron);
 }
-
 .two-column-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -111,17 +93,13 @@
     max-width: 1200px;
     margin: 0 auto;
 }
-
 .two-column-layout .column p { margin-top: 0; }
 .pillars-container { max-width: 1200px; margin: 0 auto; }
 .pillars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
 .pillar-card {
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .pillar-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); }
@@ -130,6 +108,33 @@
 .pillar-content h3 { margin-top: 0; font-size: 1.4rem; color: var(--white); }
 .pillar-content p { margin-bottom: 0; line-height: 1.6; color: #f0f0f0; }
 
-@media (max-width: 820px) {
-    .two-column-layout { grid-template-columns: 1fr; gap: 2rem; }
+
+/* --- NEW: COMPREHENSIVE RESPONSIVE STYLES --- */
+@media screen and (max-width: 768px) {
+    .home-container {
+        padding: 1rem;
+        min-height: 90vh; /* Allow some space from the bottom */
+    }
+    .home-container h1 {
+        font-size: 2.5rem; /* Reduce heading size */
+    }
+    .home-container .sub-headline {
+        font-size: 1.2rem;
+    }
+    .home-container .description {
+        font-size: 1rem;
+    }
+
+    .info-section, .pillars-section {
+        padding: 4rem 1rem; /* Reduce padding on mobile */
+    }
+
+    .info-section h2, .pillars-section h2 {
+        font-size: 2rem;
+    }
+
+    .two-column-layout {
+        grid-template-columns: 1fr; /* Stack the two columns */
+        gap: 2rem;
+    }
 }

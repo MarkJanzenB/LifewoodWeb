@@ -1,18 +1,15 @@
 /* src/styles/pages/About.css */
 
-/* --- KEYFRAME ANIMATIONS --- */
 @keyframes textCrossfade { 0%, 45% { opacity: 1; } 50%, 100% { opacity: 0; } }
 @keyframes slideToggle { 0%, 45% { transform: translateX(24px); } 55%, 95% { transform: translateX(0); } 100% { transform: translateX(24px); } }
 @keyframes switchColor { 0%, 45% { background-color: var(--castleton-green); } 55%, 95% { background-color: #D22B2B; } 100% { background-color: var(--castleton-green); } }
 
-/* --- BACKGROUND STYLES --- */
 .background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; }
 .bg-image { position: absolute; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.2s ease-in-out; }
 .bg-image.active { opacity: 1; }
 .vision-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); }
 .mission-bg { background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'); }
 
-/* --- PAGE CONTAINER STYLES --- */
 .page-container.about-page { max-width: 900px; margin: 2rem auto; padding: 2rem; background-color: var(--paper); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 .brand-showcase { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0; margin-bottom: 2rem; }
 .brand-showcase .logo { max-height: 60px; margin-bottom: 1rem; }
@@ -26,19 +23,35 @@
 .toggle-switch { position: relative; width: 52px; height: 28px; border-radius: 14px; padding: 4px; box-sizing: border-box; animation: switchColor 6s ease-in-out infinite; }
 .toggle-thumb { position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; background-color: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); animation: slideToggle 6s ease-in-out infinite; }
 
-/* --- EXISTING STYLES --- */
 .intro-text { font-size: 1.2rem; line-height: 1.7; color: var(--dark-serpent); opacity: 0.85; text-align: center; }
 .stylish-hr { border: 0; height: 2px; background-image: linear-gradient(to right, rgba(4, 98, 65, 0), rgba(4, 98, 65, 0.75), rgba(4, 98, 65, 0)); margin: 3rem 0; }
-
-.about-section {
-    /* --- THIS IS THE CORRECTED VALUE --- */
-    margin-bottom: 5rem; /* Reduced from 20rem */
-    padding: 2rem;
-    transition: transform 0.5s ease-out;
-}
-.about-section:last-of-type {
-    margin-bottom: 4rem;
-}
+.about-section { margin-bottom: 5rem; padding: 2rem; transition: transform 0.5s ease-out; }
+.about-section:last-of-type { margin-bottom: 4rem; }
 .section-header { margin-bottom: 1.5rem; }
 .section-title { color: var(--saffaron); font-size: 2.25rem; font-weight: 500; margin: 0; }
 .section-text { color: var(--dark-serpent); font-size: 1.75rem; line-height: 1.6; font-weight: 400; margin: 0; }
+
+
+/* --- NEW: COMPREHENSIVE RESPONSIVE STYLES --- */
+@media screen and (max-width: 768px) {
+    .page-container.about-page {
+        margin: 1rem auto;
+        padding: 1rem;
+    }
+    .brand-showcase .company-name {
+        font-size: 1.5rem;
+    }
+    .motto-toggle-wrapper {
+        font-size: 1.2rem;
+    }
+    .about-section {
+        padding: 1rem 0; /* Reduce padding */
+        margin-bottom: 3rem; /* Reduce spacing */
+    }
+    .section-title {
+        font-size: 1.8rem;
+    }
+    .section-text {
+        font-size: 1.2rem;
+    }
+}

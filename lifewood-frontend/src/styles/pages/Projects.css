@@ -1,37 +1,60 @@
-/* src/styles/pages/About.css & Projects.css */
-.page-container {
+/* src/styles/pages/Projects.css */
+
+.page-container.projects-page {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 5%;
+    padding: 4rem 2rem;
+    background-color: var(--paper);
 }
 
 .page-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
+    background-color: var(--dark-serpent);
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--castleton-green);
+    position: relative;
+    z-index: 2;
 }
 
+/* --- THE DEFINITIVE, BRUTE-FORCE FIX --- */
 .page-header h1 {
-    font-size: 3rem;
-    /* --- UPDATED --- */
-    color: var(--dark-serpent);
+    font-size: 3.5rem;
+    color: var(--saffaron) !important; /* Force the title to be WHITE */
+    margin-bottom: 0.5rem;
 }
 
 .page-header p {
     font-size: 1.2rem;
-    color: var(--saffaron); /* Saffaron still looks great here */
-    margin-top: -10px;
+    color: var(--saffaron) !important; /* Force the subtitle to be SAFFARON */
+    margin-top: 0;
 }
 
-.content-section {
-    /* --- UPDATED --- */
-    color: var(--dark-serpent); /* Main content text is now dark */
-    line-height: 1.8;
-    font-size: 1.1rem;
-}
-
-/* The .projects-grid itself needs no changes */
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .page-container.projects-page {
+        padding: 2rem 1rem;
+    }
+    .page-header {
+        padding: 2rem;
+    }
+    .page-header h1 {
+        font-size: 2.5rem;
+    }
+    .page-header p {
+        font-size: 1rem;
+    }
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
 }

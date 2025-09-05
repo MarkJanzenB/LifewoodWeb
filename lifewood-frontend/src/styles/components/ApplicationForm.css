@@ -1,27 +1,52 @@
 /* src/styles/components/ApplicationForm.css */
 
 .application-form {
-    background-color: var(--white); /* Change background to white */
+    background-color: var(--white);
     padding: 2.5rem;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     max-width: 800px;
     margin: 0 auto;
+    color: var(--dark-serpent);
+    /* --- NEW: Let the form be the main container --- */
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- NEW: The content wrapper holds the steps and progress bar --- */
+.form-content-wrapper {
+    width: 100%;
+}
+
+.form-step {
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
+    margin-top: 2rem; /* Add space below the progress bar */
+}
+.step-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
     color: var(--dark-serpent);
 }
 
 .application-form .form-group {
     display: flex;
-    flex: 1 1 48%; /* Allows two fields per row */
+    flex: 1 1 48%;
     gap: 1.5rem;
-    flex-direction: column;
 }
-
 .application-form .form-group.full-width {
     flex: 1 1 100%;
+}
+.application-form .form-group.full-width input,
+.application-form .form-group.full-width select,
+.application-form .form-group.full-width textarea,
+.application-form .form-group.full-width .file-label {
+    flex-direction: column;
 }
 
 .application-form input,
@@ -51,48 +76,66 @@
     resize: vertical;
 }
 
-/* --- MODERN FILE INPUT STYLES --- */
-/* Hide the default browser button */
 .application-form input[type="file"] {
     display: none;
 }
-
 .application-form .file-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     padding: 1rem;
     border: 2px dashed #d9d9d9;
     border-radius: 8px;
     cursor: pointer;
     transition: border-color 0.3s ease, background-color 0.3s ease;
 }
-
 .application-form .file-label:hover {
     border-color: var(--castleton-green);
     background-color: #f8f9fa;
 }
-
 .application-form .file-label span:first-child {
     font-weight: 500;
 }
-
 .application-form .file-label .file-name {
     font-style: italic;
     color: #555;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px; /* Adjust as needed */
+    max-width: 200px;
 }
 
-/* --- MESSAGE & SUBMIT STYLES --- */
-.form-messages {
-    width: 100%;
-}
-.form-submit-container {
+/* --- UPDATED: Navigation buttons styling --- */
+.form-navigation {
     width: 100%;
     display: flex;
-    justify-content: flex-end; /* Aligns button to the right */
-    margin-top: 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+.nav-button {
+    background-color: #f0f2f5;
+    color: var(--dark-serpent);
+    border: 1px solid #ddd;
+    padding: 10px 22px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.nav-button:hover {
+    background-color: #e2e6ea;
+    border-color: #c8ced3;
+}
+.nav-button.next {
+    background-color: var(--dark-serpent);
+    color: var(--white);
+    border: none;
+}
+.nav-button.next:hover {
+    background-color: var(--castleton-green);
 }

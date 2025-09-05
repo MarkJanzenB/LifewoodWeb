@@ -4,7 +4,7 @@
     padding: 2rem;
     background-color: var(--sea-salt);
     border-top: 1px solid #e0d9c7;
-    margin-top: 4rem;
+    margin-top: 4rem; /* This can be removed if a page has a full-height background */
 }
 
 .footer p {
@@ -18,24 +18,51 @@
     opacity: 0.7;
 }
 
-/* --- REVISED STYLES FOR THE ADMIN LINK --- */
 .admin-login-link {
-    /* Remove the separator and adjust spacing */
     margin-bottom: 1.5rem;
 }
 
 .admin-login-link a {
     font-size: 0.9rem;
     text-decoration: none;
-    padding: 0.5rem; /* Add some padding to make it easier to hover */
-
-    /* Make the link invisible by matching the background color */
+    padding: 0.5rem;
     color: var(--sea-salt);
-
-    transition: color 0.4s ease; /* Smooth transition for the color change */
+    transition: color 0.4s ease;
 }
 
 .admin-login-link a:hover {
-    /* On hover, change the color to match the copyright text */
     color: var(--dark-serpent);
+}
+
+.credits-link {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0d9c7;
+}
+
+.credits-link p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.credits-link a {
+    font-weight: 600;
+    color: var(--castleton-green);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.credits-link a:hover {
+    color: var(--saffaron);
+    text-decoration: underline;
+}
+
+/* --- NEW: COMPREHENSIVE RESPONSIVE STYLES --- */
+@media screen and (max-width: 768px) {
+    .footer {
+        padding: 1.5rem 1rem; /* Reduce padding on mobile */
+    }
+    .footer p {
+        font-size: 0.9rem; /* Make text slightly smaller */
+    }
 }

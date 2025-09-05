@@ -1,0 +1,57 @@
+/* src/styles/components/ProgressBar.css */
+.progress-bar-container {
+    width: 100%;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    position: relative; /* <-- THIS IS THE CRITICAL FIX */
+}
+
+.steps-container {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.progress-bar-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #e0e0e0;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--castleton-green);
+    width: 0%;
+    transition: width 0.4s ease-in-out;
+}
+
+.step {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: background-color 0.4s ease-in-out;
+}
+
+.step.completed .step-number {
+    background-color: var(--castleton-green);
+}
