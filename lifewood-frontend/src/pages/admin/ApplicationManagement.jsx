@@ -7,7 +7,7 @@ import { useAlert } from '../../context/AlertProvider';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Application Management | Lifewood Data Technology');
+    useDocumentTitle('Lifewood Admin | Application Management');
     const { showAlert, showConfirm } = useAlert();
 
     const [applications, setApplications] = useState([]);
