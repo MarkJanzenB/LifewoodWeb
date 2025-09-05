@@ -127,12 +127,8 @@ const ApplicationManagement = () => {
         });
     };
 
-    const handleViewResume = (resumeLink) => {
-        if (resumeLink) {
-            window.open(resumeLink, '_blank');
-        } else {
-            showAlert("No resume link was provided for this application.", "Resume Not Found");
-        }
+    const handleViewResume = (appId) => {
+        window.open(`${API_BASE_URL}/api/admin/applications/${appId}/resume`, '_blank');
     };
 
     return (
@@ -219,8 +215,8 @@ const ApplicationManagement = () => {
                         <div className="modal-actions-footer">
                             <button
                                 className="action-button view-resume"
-                                onClick={() => handleViewResume(selectedApp.resumeLink)}
-                                disabled={!selectedApp.resumeLink}
+                                onClick={() => handleViewResume(selectedApp.id)}
+                                disabled={!selectedApp.resumeFilename}
                             >
                                 View Resume
                             </button>
