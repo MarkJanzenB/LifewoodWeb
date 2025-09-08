@@ -22,14 +22,17 @@
 }
 .page-header h1 { margin: 0; color: var(--dark-serpent); }
 
-/* --- NEW STATUS CARD STYLES --- */
+/* --- THE NEW STATUS CARD STYLES --- */
 .status-cards-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 .status-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     background-color: #f8f9fa;
     padding: 1.5rem;
     border-radius: 8px;
@@ -41,42 +44,47 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
-.status-card h4 {
+.card-icon {
+    font-size: 2.5rem;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-info h4 {
     margin: 0 0 0.5rem 0;
     font-size: 1rem;
     color: #555;
     font-weight: 500;
 }
-.status-card .count {
+.card-info .count {
     font-size: 2.5rem;
     font-weight: 700;
     color: var(--dark-serpent);
 }
+/* Card Specific Colors */
+.status-card.new-card .card-icon {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+.status-card.approved-card .card-icon {
+    background-color: #f6ffed;
+    color: #52c41a;
+}
+.status-card.rejected-card .card-icon {
+    background-color: #fff1f0;
+    color: #f5222d;
+}
 
 
-/* Tabs UI Styles */
-.tabs-container {
-    display: flex;
-    border-bottom: 2px solid #e0e0e0;
-    margin-bottom: 2rem;
-}
-.tab-button {
-    padding: 1rem 1.5rem;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #555;
-    position: relative;
-    bottom: -2px;
-    transition: color 0.3s ease, border-bottom-color 0.3s ease;
-    border-bottom: 2px solid transparent;
-}
+/* --- Tabs UI Styles --- */
+.tabs-container { display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 2rem; }
+.tab-button { padding: 1rem 1.5rem; border: none; background-color: transparent; cursor: pointer; font-size: 1rem; font-weight: 500; color: #555; position: relative; bottom: -2px; transition: color 0.3s ease, border-bottom-color 0.3s ease; border-bottom: 2px solid transparent; }
 .tab-button:hover { color: var(--dark-serpent); }
 .tab-button.active { color: var(--castleton-green); font-weight: 600; border-bottom: 2px solid var(--castleton-green); }
 
-/* Table Styles */
+/* --- Table Styles --- */
 .table-container { width: 100%; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #f0f2f5; color: var(--dark-serpent); vertical-align: middle; }
@@ -84,13 +92,13 @@ thead th { background-color: #f8f9fa; font-weight: 600; font-size: 0.9rem; text-
 tbody tr.clickable-row { cursor: pointer; transition: background-color 0.2s ease; }
 tbody tr.clickable-row:hover { background-color: #f8f9fa; }
 
-/* Status Badge Styles */
+/* --- Status Badge Styles --- */
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; color: white; text-align: center; }
 .status-badge.new { background-color: #1890ff; }
 .status-badge.approved { background-color: #52c41a; }
 .status-badge.rejected { background-color: #f5222d; }
 
-/* Modal Styles */
+/* --- Modal Styles --- */
 .app-modal-content .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem; }
 .app-modal-content h2 { margin: 0; }
 .modal-details p { margin: 0.5rem 0; line-height: 1.6; }
@@ -106,7 +114,7 @@ tbody tr.clickable-row:hover { background-color: #f8f9fa; }
 .action-button.delete { background-color: #f44336; }
 .status-actions { display: flex; gap: 0.75rem; }
 
-/* Create Application Modal Form Styles */
+/* --- Create Application Modal Form Styles --- */
 .app-modal-content.create-modal .application-form { box-shadow: none; padding: 1.5rem 0 0 0; }
 .modal-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
 .modal-form .form-group { display: flex; gap: 1rem; }

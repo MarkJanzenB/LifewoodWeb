@@ -4,6 +4,8 @@ import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
 import { useAlert } from '../../context/AlertProvider';
+// --- NEW: Import the icons we will use ---
+import { FiFileText, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
@@ -14,7 +16,7 @@ const ApplicationManagement = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedApp, setSelectedApp] = useState(null);
-    const [activeTab, setActiveTab] = useState('All'); // Default to "All"
+    const [activeTab, setActiveTab] = useState('All');
     const [summary, setSummary] = useState({ New: 0, Approved: 0, Rejected: 0 });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newAppData, setNewAppData] = useState({
@@ -50,7 +52,6 @@ const ApplicationManagement = () => {
 
             if (summaryResponse.ok) {
                 const summaryData = await summaryResponse.json();
-                // Ensure we handle cases where a status might not exist
                 setSummary({
                     New: summaryData.New || 0,
                     Approved: summaryData.Approved || 0,
@@ -157,18 +158,28 @@ const ApplicationManagement = () => {
                 <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
             </div>
 
+            {/* --- THIS IS THE UPDATED STATUS CARDS SECTION --- */}
             <div className="status-cards-container">
-                <div className="status-card" onClick={() => setActiveTab('New')}>
-                    <h4>New Applications</h4>
-                    <span className="count">{summary.New}</span>
+                <div className="status-card new-card" onClick={() => setActiveTab('New')}>
+                    <div className="card-icon"><FiFileText /></div>
+                    <div className="card-info">
+                        <h4>New Applications</h4>
+                        <span className="count">{summary.New}</span>
+                    </div>
                 </div>
-                <div className="status-card" onClick={() => setActiveTab('Approved')}>
-                    <h4>Approved</h4>
-                    <span className="count">{summary.Approved}</span>
+                <div className="status-card approved-card" onClick={() => setActiveTab('Approved')}>
+                    <div className="card-icon"><FiCheckCircle /></div>
+                    <div className="card-info">
+                        <h4>Approved</h4>
+                        <span className="count">{summary.Approved}</span>
+                    </div>
                 </div>
-                <div className="status-card" onClick={() => setActiveTab('Rejected')}>
-                    <h4>Rejected</h4>
-                    <span className="count">{summary.Rejected}</span>
+                <div className="status-card rejected-card" onClick={() => setActiveTab('Rejected')}>
+                    <div className="card-icon"><FiXCircle /></div>
+                    <div className="card-info">
+                        <h4>Rejected</h4>
+                        <span className="count">{summary.Rejected}</span>
+                    </div>
                 </div>
             </div>
 
@@ -186,28 +197,28 @@ const ApplicationManagement = () => {
                 <div className="table-container">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Applicant Name</th>
-                                <th>Project</th>
-                                <th>Status</th>
-                                <th>Application Date</th>
-                            </tr>
+                        <tr>
+                            <th>Applicant Name</th>
+                            <th>Project</th>
+                            <th>Status</th>
+                            <th>Application Date</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {applications.length > 0 ? applications.map(app => (
-                                <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
-                                    <td>{`${app.firstName} ${app.lastName}`}</td>
-                                    <td>{app.project}</td>
-                                    <td>
+                        {applications.length > 0 ? applications.map(app => (
+                            <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
+                                <td>{`${app.firstName} ${app.lastName}`}</td>
+                                <td>{app.project}</td>
+                                <td>
                                         <span className={`status-badge ${app.status ? app.status.toLowerCase() : 'new'}`}>
                                             {app.status || 'New'}
                                         </span>
-                                    </td>
-                                    <td>{formatDate(app.createdAt)}</td>
-                                </tr>
-                            )) : (
-                                <tr><td colSpan="4">No applications found in this category.</td></tr>
-                            )}
+                                </td>
+                                <td>{formatDate(app.createdAt)}</td>
+                            </tr>
+                        )) : (
+                            <tr><td colSpan="4">No applications found in this category.</td></tr>
+                        )}
                         </tbody>
                     </table>
                 </div>
@@ -277,11 +288,11 @@ const ApplicationManagement = () => {
                                 {projects.map(proj => <option key={proj} value={proj}>{proj}</option>)}
                             </select>
                         </div>
-                         <div className="form-group full-width">
+                        <div className="form-group full-width">
                             <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
                         </div>
                         <div className="form-group full-width">
-                           <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
+                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>
