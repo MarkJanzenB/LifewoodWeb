@@ -4,16 +4,16 @@ import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
 import { useAlert } from '../../context/AlertProvider';
-import { useAuth } from '../../context/AuthContext'; // Import the new auth hook
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/pages/AdminManagement.css';
 
 const AdminManagement = () => {
-    useDocumentTitle('Admin Management | Lifewood Data Technology');
+    useDocumentTitle('Lifewood Admin | User Management');
     const { showAlert, showConfirm } = useAlert();
-    const { user: authUser } = useAuth(); // Get the currently authenticated user from our context
+    const { user: authUser } = useAuth();
 
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null); // This is for the "Manage User" modal
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -29,17 +29,11 @@ const AdminManagement = () => {
         try {
             const token = getToken();
             if (!token) throw new Error("Authentication token not found.");
-
             const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-
-            if (response.status === 403) {
-                throw new Error("You do not have permission to view this page.");
-            }
-            if (!response.ok) {
-                throw new Error('Failed to fetch users.');
-            }
+            if (response.status === 403) throw new Error("You do not have permission to view this page.");
+            if (!response.ok) throw new Error('Failed to fetch users.');
             const data = await response.json();
             setUsers(data);
         } catch (err) {
@@ -143,41 +137,42 @@ const AdminManagement = () => {
                 <div className="table-container">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
+                        <tr>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {users.map(user => {
-                                const isRoot = user.username === 'root';
-                                const isSelf = user.username === authUser?.username;
-                                const isDisabled = isRoot || isSelf;
-                                return (
-                                    <tr key={user.id}>
-                                        <td>{user.username} {isSelf && <span className="user-tag self">(You)</span>}</td>
-                                        <td><span className={`user-tag ${user.role?.toLowerCase()}`}>{user.role}</span></td>
-                                        <td>{user.passwordChangeRequired ? 'Pending Reset' : 'Active'}</td>
-                                        <td className="actions-cell">
-                                            <button
-                                                className="admin-button edit"
-                                                disabled={isDisabled}
-                                                onClick={() => setSelectedUser(user)}
-                                                title={isDisabled ? "Root user and self cannot be modified." : "Manage User"}
-                                            >
-                                                Manage
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                        {users.map(user => {
+                            const isRoot = user.username === 'root';
+                            const isSelf = user.username === authUser?.username;
+                            const isDisabled = isRoot || isSelf;
+                            return (
+                                <tr key={user.id}>
+                                    <td>{user.username} {isSelf && <span className="user-tag self">(You)</span>}</td>
+                                    <td><span className={`user-tag ${user.role?.toLowerCase()}`}>{user.role}</span></td>
+                                    <td>{user.passwordChangeRequired ? 'Pending Reset' : 'Active'}</td>
+                                    <td className="actions-cell">
+                                        <button
+                                            className="admin-button edit"
+                                            disabled={isDisabled}
+                                            onClick={() => setSelectedUser(user)}
+                                            title={isDisabled ? "Root user and self cannot be modified." : "Manage User"}
+                                        >
+                                            Manage
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                 </div>
             )}
 
+            {/* --- THIS IS THE RESTORED MODAL --- */}
             <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
                 {selectedUser && (
                     <div className="user-modal-content">

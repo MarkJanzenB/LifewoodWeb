@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import { useAuth } from '../../context/AuthContext';
@@ -9,35 +9,42 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
+    // --- NEW: State for mobile sidebar visibility ---
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     const handleLogout = () => {
         logout();
         navigate('/admin/login');
     };
 
-    // This helper function checks if the user's roles array includes the required role
-    const hasRole = (role) => {
-        // The optional chaining (?.) prevents errors if the user object is not yet loaded
-        return user?.roles?.includes(role);
-    };
+    const hasRole = (role) => user?.roles?.includes(role);
 
     return (
         <div className="admin-dashboard-layout">
-            <nav className="admin-sidebar">
+            {/* --- NEW: Burger menu for mobile --- */}
+            <div className="admin-burger-menu" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                <span className="bar"></span>
+                <span className="bar"></span>
+                <span className="bar"></span>
+            </div>
+
+            {/* --- UPDATED: Sidebar now has a class to control visibility --- */}
+            <nav className={`admin-sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <h2>Admin Panel</h2>
+                    {/* Add a close button for mobile */}
+                    <button className="sidebar-close-btn" onClick={() => setIsSidebarOpen(false)}>&times;</button>
                 </div>
                 <div className="sidebar-links">
-                    <NavLink to="/admin/dashboard/applications">Application Management</NavLink>
-
-                    {/* The "User Management" link will only be rendered if the user has the 'ROLE_ROOT' */}
+                    <NavLink to="/admin/dashboard/applications" onClick={() => setIsSidebarOpen(false)}>Application Management</NavLink>
                     {hasRole('ROLE_ROOT') && (
-                        <NavLink to="/admin/dashboard/users">User Management</NavLink>
+                        <NavLink to="/admin/dashboard/users" onClick={() => setIsSidebarOpen(false)}>User Management</NavLink>
                     )}
                 </div>
                 <button className="admin-button logout" onClick={handleLogout}>Logout</button>
             </nav>
+
             <main className="admin-main-content">
-                {/* The child routes (ApplicationManagement or AdminManagement) will be rendered here */}
                 <Outlet />
             </main>
         </div>
