@@ -4,7 +4,7 @@ import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
 import { useAlert } from '../../context/AlertProvider';
-// --- NEW: Import the icons we will use ---
+// --- THIS IS THE CORRECTED IMPORT PATH ---
 import { FiFileText, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import '../../styles/pages/ApplicationManagement.css';
 
@@ -158,7 +158,6 @@ const ApplicationManagement = () => {
                 <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
             </div>
 
-            {/* --- THIS IS THE UPDATED STATUS CARDS SECTION --- */}
             <div className="status-cards-container">
                 <div className="status-card new-card" onClick={() => setActiveTab('New')}>
                     <div className="card-icon"><FiFileText /></div>
