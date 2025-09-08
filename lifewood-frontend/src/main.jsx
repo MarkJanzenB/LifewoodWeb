@@ -4,7 +4,7 @@ import App from './App';
 import { AlertProvider } from './context/AlertProvider';
 import { AuthProvider } from './context/AuthContext'; // <-- IMPORT THE NEW PROVIDER
 import './styles/index.css';
-import './styles/animations.css';
+import './styles/Animations.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
