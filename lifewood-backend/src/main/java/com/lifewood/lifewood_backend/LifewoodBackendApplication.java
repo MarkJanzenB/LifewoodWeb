@@ -21,13 +21,12 @@ public class LifewoodBackendApplication {
     CommandLineRunner initDatabase(AdminUserRepository adminUserRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             if (!adminUserRepository.findByUsername("root").isPresent()) {
-                System.out.println(">>> Creating initial 'root' user...");
+                System.out.println(">>> Initializing 'root' user...");
                 AdminUser rootUser = new AdminUser("root", passwordEncoder.encode("root"));
                 rootUser.setPasswordChangeRequired(true);
-                // Although the model has a default, it's good practice to be explicit.
-                rootUser.setRole("ADMIN");
+                rootUser.setRole("ROOT");
                 adminUserRepository.save(rootUser);
-                System.out.println(">>> 'root' user created successfully.");
+                System.out.println(">>> Root initialized successfully.");
             }
         };
     }
