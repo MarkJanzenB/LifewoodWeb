@@ -3,14 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import Button from '../../components/Button';
 import API_BASE_URL from '../../apiConfig';
-import '../../styles/pages/Admin.css';
+import { useAuth } from '../../context/AuthContext'; // <-- Import the new auth hook
 
 const AdminLogin = () => {
-    useDocumentTitle('Lifewood Admin | Admin Portal');
+    useDocumentTitle('Admin Portal | Lifewood Data Technology');
+    const navigate = useNavigate();
+    const { login } = useAuth(); // <-- Get the login function from the context
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,20 +24,14 @@ const AdminLogin = () => {
                 body: JSON.stringify({ username, password }),
             });
 
-            let data;
-            try {
-                data = await response.json();
-            } catch (error) {
-                throw new Error('Failed to parse response as JSON');
-            }
+            const data = await response.json();
 
             if (!response.ok) {
-                // If the response is not OK, the JSON body contains the error message
                 throw new Error(data.error || 'An error occurred.');
             }
 
-            // If the response IS OK, proceed with login
-            localStorage.setItem('authToken', data.jwt);
+            // Call the login function from the context to update the global state
+            login(data.jwt);
 
             if (data.passwordChangeRequired) {
                 navigate('/admin/force-reset');
@@ -43,7 +39,6 @@ const AdminLogin = () => {
                 navigate('/admin/dashboard');
             }
         } catch (err) {
-            // This will now correctly display errors like "Incorrect username or password"
             setError(err.message);
         }
     };

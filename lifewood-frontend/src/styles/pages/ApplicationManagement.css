@@ -22,6 +22,39 @@
 }
 .page-header h1 { margin: 0; color: var(--dark-serpent); }
 
+/* --- NEW STATUS CARD STYLES --- */
+.status-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+.status-card {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.status-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+.status-card h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    color: #555;
+    font-weight: 500;
+}
+.status-card .count {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-serpent);
+}
+
+
+/* Tabs UI Styles */
 .tabs-container {
     display: flex;
     border-bottom: 2px solid #e0e0e0;
@@ -43,6 +76,7 @@
 .tab-button:hover { color: var(--dark-serpent); }
 .tab-button.active { color: var(--castleton-green); font-weight: 600; border-bottom: 2px solid var(--castleton-green); }
 
+/* Table Styles */
 .table-container { width: 100%; overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #f0f2f5; color: var(--dark-serpent); vertical-align: middle; }
@@ -50,11 +84,13 @@ thead th { background-color: #f8f9fa; font-weight: 600; font-size: 0.9rem; text-
 tbody tr.clickable-row { cursor: pointer; transition: background-color 0.2s ease; }
 tbody tr.clickable-row:hover { background-color: #f8f9fa; }
 
+/* Status Badge Styles */
 .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: 600; font-size: 0.8rem; color: white; text-align: center; }
 .status-badge.new { background-color: #1890ff; }
 .status-badge.approved { background-color: #52c41a; }
 .status-badge.rejected { background-color: #f5222d; }
 
+/* Modal Styles */
 .app-modal-content .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem; }
 .app-modal-content h2 { margin: 0; }
 .modal-details p { margin: 0.5rem 0; line-height: 1.6; }
@@ -70,10 +106,8 @@ tbody tr.clickable-row:hover { background-color: #f8f9fa; }
 .action-button.delete { background-color: #f44336; }
 .status-actions { display: flex; gap: 0.75rem; }
 
-.app-modal-content.create-modal .application-form {
-    box-shadow: none;
-    padding: 1.5rem 0 0 0;
-}
+/* Create Application Modal Form Styles */
+.app-modal-content.create-modal .application-form { box-shadow: none; padding: 1.5rem 0 0 0; }
 .modal-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
 .modal-form .form-group { display: flex; gap: 1rem; }
 .modal-form .form-group.full-width { flex: 1 1 100%; }

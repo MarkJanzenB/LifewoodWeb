@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import useDocumentTitle from '../../components/useDocumentTitle';
 import API_BASE_URL from '../../apiConfig';
 import Modal from '../../components/Modal';
 import Button from '../../components/Button';
-import { useAlert } from '../../context/AlertProvider'; // Import the hook
+import { useAlert } from '../../context/AlertProvider';
+import { useAuth } from '../../context/AuthContext'; // Import the new auth hook
 import '../../styles/pages/AdminManagement.css';
 
 const AdminManagement = () => {
-    useDocumentTitle('Lifewood Admin | Admin Management');
-    const { showAlert, showConfirm } = useAlert(); // Use the hook
+    useDocumentTitle('Admin Management | Lifewood Data Technology');
+    const { showAlert, showConfirm } = useAlert();
+    const { user: authUser } = useAuth(); // Get the currently authenticated user from our context
 
     const [users, setUsers] = useState([]);
-    const [currentUser, setCurrentUser] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -21,19 +21,25 @@ const AdminManagement = () => {
     const [newUsername, setNewUsername] = useState('');
     const [modalMessage, setModalMessage] = useState({ type: '', text: '' });
 
+    const getToken = () => localStorage.getItem('authToken');
+
     const fetchUsers = useCallback(async () => {
         setIsLoading(true);
+        setError('');
         try {
-            const token = localStorage.getItem('authToken');
-            if (!token) throw new Error("No auth token found.");
-
-            const decodedToken = jwtDecode(token);
-            setCurrentUser(decodedToken.sub);
+            const token = getToken();
+            if (!token) throw new Error("Authentication token not found.");
 
             const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            if (!response.ok) throw new Error('Failed to fetch users.');
+
+            if (response.status === 403) {
+                throw new Error("You do not have permission to view this page.");
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch users.');
+            }
             const data = await response.json();
             setUsers(data);
         } catch (err) {
@@ -55,7 +61,7 @@ const AdminManagement = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('authToken');
+            const token = getToken();
             const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -79,13 +85,11 @@ const AdminManagement = () => {
         if (!selectedUser) return;
         const confirmed = await showConfirm(
             `Are you sure you want to delete user: ${selectedUser.username}? This cannot be undone.`,
-            'Confirm Deletion',
-            'Delete',
-            'Cancel'
+            'Confirm Deletion', 'Delete', 'Cancel'
         );
         if (confirmed) {
             try {
-                const token = localStorage.getItem('authToken');
+                const token = getToken();
                 const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedUser.id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -105,13 +109,11 @@ const AdminManagement = () => {
         if (!selectedUser) return;
         const confirmed = await showConfirm(
             `Are you sure you want to reset the password for ${selectedUser.username}?`,
-            'Confirm Password Reset',
-            'Reset Password',
-            'Cancel'
+            'Confirm Password Reset', 'Reset Password', 'Cancel'
         );
         if (confirmed) {
             try {
-                const token = localStorage.getItem('authToken');
+                const token = getToken();
                 const response = await fetch(`${API_BASE_URL}/api/admin/users/${selectedUser.id}/reset-password`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -136,25 +138,45 @@ const AdminManagement = () => {
             </div>
             {isLoading && <p>Loading users...</p>}
             {error && <p className="error-message">{error}</p>}
-            <div className="admin-users-grid">
-                {users.map(user => {
-                    const isRoot = user.username === 'root';
-                    const isSelf = user.username === currentUser;
-                    const isDisabled = isRoot || isSelf;
-                    return (
-                        <div
-                            key={user.id}
-                            className={`user-card ${isDisabled ? 'disabled' : ''}`}
-                            onClick={() => !isDisabled && setSelectedUser(user)}
-                            title={isDisabled ? "This user cannot be modified." : `Manage ${user.username}`}
-                        >
-                            <span className="username">{user.username}</span>
-                            {isRoot && <span className="user-tag root">ROOT</span>}
-                            {isSelf && <span className="user-tag self">YOU</span>}
-                        </div>
-                    );
-                })}
-            </div>
+
+            {!isLoading && !error && (
+                <div className="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {users.map(user => {
+                                const isRoot = user.username === 'root';
+                                const isSelf = user.username === authUser?.username;
+                                const isDisabled = isRoot || isSelf;
+                                return (
+                                    <tr key={user.id}>
+                                        <td>{user.username} {isSelf && <span className="user-tag self">(You)</span>}</td>
+                                        <td><span className={`user-tag ${user.role?.toLowerCase()}`}>{user.role}</span></td>
+                                        <td>{user.passwordChangeRequired ? 'Pending Reset' : 'Active'}</td>
+                                        <td className="actions-cell">
+                                            <button
+                                                className="admin-button edit"
+                                                disabled={isDisabled}
+                                                onClick={() => setSelectedUser(user)}
+                                                title={isDisabled ? "Root user and self cannot be modified." : "Manage User"}
+                                            >
+                                                Manage
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
             <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)}>
                 {selectedUser && (

@@ -61,13 +61,21 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/admin/applications/**", "/api/applications/**").permitAll()
-                        .requestMatchers("/api/message").permitAll() // Allow access to the message endpoint
+                        // Public endpoints that anyone can access
+                        .requestMatchers("/api/auth/login", "/api/applications/**", "/api/message", "/api/health").permitAll()
+
+                        // Role-Based Rules for Admin Section
+                        // Only users with 'ROOT' authority can manage other users
+                        .requestMatchers("/api/admin/users/**").hasAuthority("ROLE_ROOT")
+
+                        // Users with either 'ADMIN' or 'ROOT' can manage applications and their own profile
+                        .requestMatchers("/api/admin/applications/**", "/api/auth/profile").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROOT")
+
+                        // All other requests must be authenticated
                         .anyRequest().authenticated()
                 );
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 }

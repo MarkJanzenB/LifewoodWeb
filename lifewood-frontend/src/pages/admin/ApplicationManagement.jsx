@@ -7,16 +7,15 @@ import { useAlert } from '../../context/AlertProvider';
 import '../../styles/pages/ApplicationManagement.css';
 
 const ApplicationManagement = () => {
-    useDocumentTitle('Lifewood Admin | Application Management');
+    useDocumentTitle('Application Management | Lifewood Data Technology');
     const { showAlert, showConfirm } = useAlert();
 
     const [applications, setApplications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedApp, setSelectedApp] = useState(null);
-
-    const [activeTab, setActiveTab] = useState('New');
-
+    const [activeTab, setActiveTab] = useState('All'); // Default to "All"
+    const [summary, setSummary] = useState({ New: 0, Approved: 0, Rejected: 0 });
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newAppData, setNewAppData] = useState({
         firstName: '', lastName: '', age: '', degree: '',
@@ -31,17 +30,33 @@ const ApplicationManagement = () => {
 
     const getToken = () => localStorage.getItem('authToken');
 
-    const fetchApplications = useCallback(async () => {
+    const fetchApplicationsAndSummary = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
             const token = getToken();
-            const response = await fetch(`${API_BASE_URL}/api/admin/applications/status/${activeTab}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-            if (!response.ok) throw new Error(`Failed to fetch ${activeTab} applications.`);
-            const data = await response.json();
-            setApplications(data);
+            const endpoint = activeTab === 'All'
+                ? `${API_BASE_URL}/api/admin/applications`
+                : `${API_BASE_URL}/api/admin/applications/status/${activeTab}`;
+
+            const [appsResponse, summaryResponse] = await Promise.all([
+                fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(`${API_BASE_URL}/api/admin/applications/summary`, { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+
+            if (!appsResponse.ok) throw new Error(`Failed to fetch ${activeTab} applications.`);
+            const appsData = await appsResponse.json();
+            setApplications(appsData);
+
+            if (summaryResponse.ok) {
+                const summaryData = await summaryResponse.json();
+                // Ensure we handle cases where a status might not exist
+                setSummary({
+                    New: summaryData.New || 0,
+                    Approved: summaryData.Approved || 0,
+                    Rejected: summaryData.Rejected || 0,
+                });
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -50,8 +65,8 @@ const ApplicationManagement = () => {
     }, [activeTab]);
 
     useEffect(() => {
-        fetchApplications();
-    }, [fetchApplications]);
+        fetchApplicationsAndSummary();
+    }, [fetchApplicationsAndSummary]);
 
     const handleCreateSubmit = async (e) => {
         e.preventDefault();
@@ -68,7 +83,7 @@ const ApplicationManagement = () => {
                 throw new Error(errorText || 'Failed to create application.');
             }
             setModalMessage({ type: 'success', text: 'Application created successfully!' });
-            fetchApplications();
+            fetchApplicationsAndSummary();
             setTimeout(() => {
                 setIsCreateModalOpen(false);
                 setModalMessage({ type: '', text: '' });
@@ -92,7 +107,7 @@ const ApplicationManagement = () => {
                 body: JSON.stringify({ status: newStatus }),
             });
             showAlert(`Application successfully marked as ${newStatus}.`, 'Status Updated');
-            fetchApplications();
+            fetchApplicationsAndSummary();
             setSelectedApp(null);
         } catch (err) {
             showAlert(err.message, 'Update Failed');
@@ -112,7 +127,7 @@ const ApplicationManagement = () => {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
                 showAlert('The application has been deleted successfully.', 'Success');
-                fetchApplications();
+                fetchApplicationsAndSummary();
                 setSelectedApp(null);
             } catch (err) {
                 showAlert(err.message, 'Deletion Failed');
@@ -127,8 +142,12 @@ const ApplicationManagement = () => {
         });
     };
 
-    const handleViewResume = (appId) => {
-        window.open(`${API_BASE_URL}/api/admin/applications/${appId}/resume`, '_blank');
+    const handleViewResume = (resumeLink) => {
+        if (resumeLink) {
+            window.open(resumeLink, '_blank');
+        } else {
+            showAlert("No resume link was provided for this application.", "Resume Not Found");
+        }
     };
 
     return (
@@ -138,25 +157,26 @@ const ApplicationManagement = () => {
                 <button className="admin-button" onClick={() => setIsCreateModalOpen(true)}>+ Add Application</button>
             </div>
 
+            <div className="status-cards-container">
+                <div className="status-card" onClick={() => setActiveTab('New')}>
+                    <h4>New Applications</h4>
+                    <span className="count">{summary.New}</span>
+                </div>
+                <div className="status-card" onClick={() => setActiveTab('Approved')}>
+                    <h4>Approved</h4>
+                    <span className="count">{summary.Approved}</span>
+                </div>
+                <div className="status-card" onClick={() => setActiveTab('Rejected')}>
+                    <h4>Rejected</h4>
+                    <span className="count">{summary.Rejected}</span>
+                </div>
+            </div>
+
             <div className="tabs-container">
-                <button
-                    className={`tab-button ${activeTab === 'New' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('New')}
-                >
-                    New Applications
-                </button>
-                <button
-                    className={`tab-button ${activeTab === 'Approved' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('Approved')}
-                >
-                    Approved
-                </button>
-                <button
-                    className={`tab-button ${activeTab === 'Rejected' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('Rejected')}
-                >
-                    Rejected
-                </button>
+                <button className={`tab-button ${activeTab === 'All' ? 'active' : ''}`} onClick={() => setActiveTab('All')}>All Applications</button>
+                <button className={`tab-button ${activeTab === 'New' ? 'active' : ''}`} onClick={() => setActiveTab('New')}>New</button>
+                <button className={`tab-button ${activeTab === 'Approved' ? 'active' : ''}`} onClick={() => setActiveTab('Approved')}>Approved</button>
+                <button className={`tab-button ${activeTab === 'Rejected' ? 'active' : ''}`} onClick={() => setActiveTab('Rejected')}>Rejected</button>
             </div>
 
             {isLoading && <p>Loading applications...</p>}
@@ -166,28 +186,28 @@ const ApplicationManagement = () => {
                 <div className="table-container">
                     <table>
                         <thead>
-                        <tr>
-                            <th>Applicant Name</th>
-                            <th>Project</th>
-                            <th>Status</th>
-                            <th>Application Date</th>
-                        </tr>
+                            <tr>
+                                <th>Applicant Name</th>
+                                <th>Project</th>
+                                <th>Status</th>
+                                <th>Application Date</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {applications.length > 0 ? applications.map(app => (
-                            <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
-                                <td>{`${app.firstName} ${app.lastName}`}</td>
-                                <td>{app.project}</td>
-                                <td>
+                            {applications.length > 0 ? applications.map(app => (
+                                <tr key={app.id} onClick={() => setSelectedApp(app)} className="clickable-row">
+                                    <td>{`${app.firstName} ${app.lastName}`}</td>
+                                    <td>{app.project}</td>
+                                    <td>
                                         <span className={`status-badge ${app.status ? app.status.toLowerCase() : 'new'}`}>
                                             {app.status || 'New'}
                                         </span>
-                                </td>
-                                <td>{formatDate(app.createdAt)}</td>
-                            </tr>
-                        )) : (
-                            <tr><td colSpan="4">No applications found in this category.</td></tr>
-                        )}
+                                    </td>
+                                    <td>{formatDate(app.createdAt)}</td>
+                                </tr>
+                            )) : (
+                                <tr><td colSpan="4">No applications found in this category.</td></tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -215,8 +235,8 @@ const ApplicationManagement = () => {
                         <div className="modal-actions-footer">
                             <button
                                 className="action-button view-resume"
-                                onClick={() => handleViewResume(selectedApp.id)}
-                                disabled={!selectedApp.resumeFilename}
+                                onClick={() => handleViewResume(selectedApp.resumeLink)}
+                                disabled={!selectedApp.resumeLink}
                             >
                                 View Resume
                             </button>
@@ -257,11 +277,11 @@ const ApplicationManagement = () => {
                                 {projects.map(proj => <option key={proj} value={proj}>{proj}</option>)}
                             </select>
                         </div>
-                        <div className="form-group full-width">
+                         <div className="form-group full-width">
                             <textarea name="experience" placeholder="Relevant Experience" rows="3" value={newAppData.experience} onChange={handleNewAppChange} required />
                         </div>
                         <div className="form-group full-width">
-                            <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
+                           <input type="url" name="resumeLink" placeholder="Public Resume Link (e.g., Google Drive)" value={newAppData.resumeLink} onChange={handleNewAppChange} required />
                         </div>
                         {modalMessage.text && (
                             <p className={modalMessage.type === 'error' ? 'error-message form-error' : 'success-message'}>

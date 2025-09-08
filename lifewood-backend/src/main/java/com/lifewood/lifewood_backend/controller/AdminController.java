@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -31,12 +32,17 @@ public class AdminController {
 
     // --- APPLICATION MANAGEMENT ---
 
+    @GetMapping("/applications/summary")
+    public Map<String, Long> getApplicationSummary() {
+        return applicationService.getAllApplications().stream()
+                .collect(Collectors.groupingBy(Application::getStatus, Collectors.counting()));
+    }
+
     @GetMapping("/applications")
     public List<Application> getAllApplications() {
         return applicationService.getAllApplications();
     }
 
-    // This is the new endpoint for fetching applications by their status.
     @GetMapping("/applications/status/{status}")
     public List<Application> getApplicationsByStatus(@PathVariable String status) {
         return applicationService.getApplicationsByStatus(status);
@@ -100,7 +106,7 @@ public class AdminController {
         }
         AdminUser newAdmin = new AdminUser(newUsername, passwordEncoder.encode("root"));
         newAdmin.setPasswordChangeRequired(true);
-        newAdmin.setRole("ADMIN");
+        newAdmin.setRole("ADMIN"); // New users are created with the 'ADMIN' role by default
         adminUserRepository.save(newAdmin);
         return ResponseEntity.ok("Admin user created successfully. Default password is 'root'.");
     }

@@ -15,10 +15,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+// --- Data Transfer Objects (DTOs) for this controller ---
 record AuthRequest(String username, String password) {}
+record LoginResponse(String jwt, boolean passwordChangeRequired) {}
 record PasswordResetRequest(String newPassword) {}
+// This new DTO will include the user's roles in the profile response
+record ProfileResponse(String username, List<String> roles) {}
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,21 +40,19 @@ public class AuthController {
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthRequest authRequest) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
+                new UsernamePasswordAuthenticationToken(authRequest.username(), authRequest.password())
             );
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
         }
+
         AdminUser user = adminUserRepository.findByUsername(authRequest.username())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication"));
-        // Check if the user is an admin or is the root user
-        if (!user.getRole().equals("ADMIN") && !user.getUsername().equals("root")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
-        }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
         final String jwt = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(Map.of("jwt", jwt, "passwordChangeRequired", user.isPasswordChangeRequired()));
+
+        return ResponseEntity.ok(new LoginResponse(jwt, user.isPasswordChangeRequired()));
     }
 
     @PostMapping("/force-reset-password")
@@ -55,9 +60,27 @@ public class AuthController {
         String username = authentication.getName();
         AdminUser user = adminUserRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         user.setPasswordChangeRequired(false);
         adminUserRepository.save(user);
+
         return ResponseEntity.ok("Password has been reset successfully.");
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> getUserProfile(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build(); // Unauthorized
+        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        // Extract the roles from the UserDetails object
+        List<String> roles = userDetails.getAuthorities().stream()
+                                        .map(authority -> authority.getAuthority())
+                                        .collect(Collectors.toList());
+
+        // Return the new response object that includes the roles
+        return ResponseEntity.ok(new ProfileResponse(userDetails.getUsername(), roles));
     }
 }
