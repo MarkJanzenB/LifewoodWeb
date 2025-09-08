@@ -1,8 +1,8 @@
 /* src/styles/pages/AdminManagement.css */
 
 @keyframes slideFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .admin-page-content {
@@ -30,15 +30,13 @@
     color: var(--dark-serpent);
 }
 
-/* --- NOTE: .admin-users-grid styles are now replaced by table styles --- */
-
 .user-tag {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 4px;
-  color: var(--white);
-  text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--white);
+    text-transform: uppercase;
 }
 .user-tag.self {
     background-color: transparent;
@@ -50,47 +48,44 @@
 .user-tag.root { background-color: var(--saffaron); }
 .user-tag.admin { background-color: var(--castleton-green); }
 
-
-/* Modal Styles (for Manage and Create Modals) */
 .user-modal-content {
-  text-align: center;
+    text-align: center;
 }
 .user-modal-content h2 {
-  margin-top: 0;
+    margin-top: 0;
 }
 .user-modal-content p {
-  color: #555;
-  margin: 1rem 0;
+    color: #555;
+    margin: 1rem 0;
 }
 .modal-username {
-  font-size: 1.5rem;
-  font-weight: 600;
-  background-color: #f0f2f5;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  margin: 1rem 0 2rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    background-color: #f0f2f5;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 1rem 0 2rem 0;
 }
 .modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
 }
 .action-button {
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    color: white;
 }
 .action-button:hover {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 .action-button.reset { background-color: #ff9800; }
 .action-button.delete { background-color: #f44336; }
 
-/* Styles for the Create Admin Modal Form */
 .modal-form {
     display: flex;
     flex-direction: column;
